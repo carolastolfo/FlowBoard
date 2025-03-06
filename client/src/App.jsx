@@ -1,11 +1,13 @@
 import KanbanBoard from './components/KanbanBoard';
+import Boards from './components/Boards';
 import './App.css'; // Import the global styles
 
 function App() {
   return (
-    <div className='kanban-board'>
-      <KanbanBoard />
-    </div>
+    <Boards />
+    // <div className='kanban-board'>
+    //   <KanbanBoard />
+    // </div>
   );
 }
 

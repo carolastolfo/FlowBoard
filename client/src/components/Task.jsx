@@ -4,8 +4,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faPencilSquare } from '@fortawesome/free-solid-svg-icons';
 
 const Task = ({ task, index, columnId, deleteTask, editTask }) => {
-  const [isEditing, setIsEditing] = useState(false); // State to track if task is being edited
-  const [newContent, setNewContent] = useState(task.content); // State to store updated task content
+  const [isEditing, setIsEditing] = useState(false);
+  const [newContent, setNewContent] = useState(task.content);
 
   // Update content when task content changes
   useEffect(() => {
@@ -20,10 +20,10 @@ const Task = ({ task, index, columnId, deleteTask, editTask }) => {
       editTask(columnId, task.id, {
         content: newContent,
         completed: task.completed,
-      }); // Fixed syntax
+      });
     }
 
-    setIsEditing(false); // Exit edit mode AFTER updating the task
+    setIsEditing(false);
   };
 
   // Handle toggling the checkbox state

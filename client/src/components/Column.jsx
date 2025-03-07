@@ -2,26 +2,23 @@ import { Droppable } from '@hello-pangea/dnd';
 import Task from './Task';
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faBars } from '@fortawesome/free-solid-svg-icons';
+import ListMenu from './ListMenu';
 
 // Represents a single column in the Kanban board
 const Column = ({
-  title, // Title of the column
-  tasks, // Array of tasks in this column
-  id, // Unique identifier for the column
-  addTask, // Function to add a new task
-  deleteTask, // Function to delete a task
-  editTask, // Function to edit a task
-  deleteColumn, // Function to delete this column
+  title,
+  tasks,
+  id,
+  addTask,
+  deleteTask,
+  editTask,
+  deleteColumn,
+  activeMenuColumn,
+  setActiveMenuColumn,
 }) => {
-  const [newTask, setNewTask] = useState(''); // State to store the new task input
-
-  // Function to handle adding a new task
-  // const handleAddTask = () => {
-  //   if (!newTask.trim()) return; // Prevent adding empty tasks
-  //   addTask(id, newTask); // Call addTask function with column ID and task text
-  //   setNewTask(''); // Clear the input field
-  // };
+  const [newTask, setNewTask] = useState('');
+  const isMenuOpen = activeMenuColumn === id;
 
   return (
     <div className='column'>
@@ -35,18 +32,25 @@ const Column = ({
           ))}
         </h2>
 
-        {deleteColumn && (
+        <div className='column-right'>
           <button
-            className='delete-column-btn'
-            onClick={() => deleteColumn(id)}
-            title='Delete Column'
+            className='list-column-btn'
+            title='List Actions'
+            onClick={() => setActiveMenuColumn(isMenuOpen ? null : id)}
           >
-            <FontAwesomeIcon icon={faTrash} />
+            <FontAwesomeIcon icon={faBars} />
           </button>
-        )}
+
+          {isMenuOpen && (
+            <ListMenu
+              deleteColumn={deleteColumn}
+              id={id}
+              setActiveMenuColumn={setActiveMenuColumn}
+            />
+          )}
+        </div>
       </div>
 
-      {/* Input for adding tasks */}
       <div className='add-task'>
         <input
           type='text'
@@ -54,7 +58,7 @@ const Column = ({
           onChange={(e) => setNewTask(e.target.value)}
           placeholder='Enter task...'
         />
-        {/* <button onClick={handleAddTask}>+ Add</button> */}
+
         <button
           onClick={() => {
             if (!newTask.trim()) return;

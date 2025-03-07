@@ -1,18 +1,19 @@
 import { useState, useRef, useEffect } from 'react';
-import { DragDropContext } from '@hello-pangea/dnd';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import Column from './Column';
 
 // Represents the entire board with multiple columns
 const KanbanBoard = () => {
-  // State to store tasks
   const [tasks, setTasks] = useState({
     todo: { title: 'To Do', items: [{ id: '1', content: 'Design UI' }] },
     doing: { title: 'Doing', items: [{ id: '2', content: 'Develop API' }] },
     done: { title: 'Done', items: [{ id: '3', content: 'Write Docs' }] },
   });
 
-  const [newColumnName, setNewColumnName] = useState(''); // State for new column
+  const [columnOrder, setColumnOrder] = useState(Object.keys(tasks));
+  const [newColumnName, setNewColumnName] = useState('');
   const boardRef = useRef(null);
+  const [activeMenuColumn, setActiveMenuColumn] = useState(null);
 
   useEffect(() => {
     if (boardRef.current) {
@@ -22,64 +23,65 @@ const KanbanBoard = () => {
 
   // Function to add a task to a specific column
   const addTask = (columnId, content) => {
-    if (!content.trim()) return; // Prevent adding empty tasks
-    const newTask = { id: Date.now().toString(), content, completed: false }; // Create a new task object
-    setTasks((prev) => ({
-      ...prev,
-      [columnId]: {
-        ...prev[columnId],
-        items: [...prev[columnId].items, newTask], // Add the new task to the column
-      },
-    }));
+    if (!content.trim()) return;
+
+    setTasks((prev) => {
+      const updatedItems = [
+        ...prev[columnId].items,
+        { id: Date.now().toString(), content, completed: false },
+      ];
+      return {
+        ...prev,
+        [columnId]: { ...prev[columnId], items: updatedItems },
+      };
+    });
   };
 
   // Function to delete a task from a specific column
   const deleteTask = (columnId, taskId) => {
-    setTasks((prev) => ({
-      ...prev,
-      [columnId]: {
-        ...prev[columnId],
-        items: prev[columnId].items.filter((task) => task.id !== taskId), // Remove the task from the column
-      },
-    }));
+    setTasks((prev) => {
+      const updatedItems = prev[columnId].items.filter(
+        (task) => task.id !== taskId
+      );
+      return {
+        ...prev,
+        [columnId]: { ...prev[columnId], items: updatedItems },
+      };
+    });
   };
 
-  // Function to edit a task in a specific column
   const editTask = (columnId, taskId, updatedTask) => {
-    setTasks((prev) => ({
-      ...prev,
-      [columnId]: {
-        ...prev[columnId],
-        items: prev[columnId].items.map((task) =>
-          task.id === taskId
-            ? {
-                ...task,
-                content: updatedTask.content,
-                completed: updatedTask.completed,
-              }
-            : task
-        ),
-      },
-    }));
+    setTasks((prev) => {
+      const updatedItems = prev[columnId].items.map((task) =>
+        task.id === taskId ? { ...task, ...updatedTask } : task
+      );
+      return {
+        ...prev,
+        [columnId]: { ...prev[columnId], items: updatedItems },
+      };
+    });
   };
 
   // Function to delete a column
   const deleteColumn = (columnId) => {
     setTasks((prev) => {
       const updatedTasks = { ...prev };
-      delete updatedTasks[columnId]; // Remove the column from state
+      delete updatedTasks[columnId];
       return updatedTasks;
     });
+    setColumnOrder((prev) => prev.filter((id) => id !== columnId));
   };
 
   // Function to add a new column
   const addColumn = () => {
-    if (!newColumnName.trim()) return; // Prevent adding empty columns
+    if (!newColumnName.trim()) return;
+
     const newColumnId = `col-${Date.now()}`;
     setTasks((prev) => ({
       ...prev,
-      [newColumnId]: { title: newColumnName, items: [] }, // Create a new column with an empty task list
+      [newColumnId]: { title: newColumnName, items: [] },
     }));
+    setColumnOrder((prev) => [...prev, newColumnId]);
     setNewColumnName('');
 
     // Auto-scroll to new column
@@ -91,39 +93,40 @@ const KanbanBoard = () => {
   };
 
   // Function to handle drag-and-drop task movement
-  const onDragEnd = ({ source, destination }) => {
-    // If there's no valid destination or task is dropped at the same position, do nothing
-    if (
-      !destination ||
-      (source.droppableId === destination.droppableId &&
-        source.index === destination.index)
-    )
-      return;
+  const onDragEnd = ({ source, destination, type }) => {
+    if (!destination) return;
 
-    setTasks((prev) => {
-      const sourceTasks = [...prev[source.droppableId].items]; // Get tasks from the source column
-      const destinationTasks =
-        source.droppableId === destination.droppableId
-          ? sourceTasks
-          : [...prev[destination.droppableId].items]; // Get tasks from the destination column
+    if (type === 'COLUMN') {
+      const newOrder = [...columnOrder];
+      const [movedColumn] = newOrder.splice(source.index, 1);
+      newOrder.splice(destination.index, 0, movedColumn);
+      setColumnOrder(newOrder);
+    } else {
+      setTasks((prev) => {
+        const sourceTasks = [...prev[source.droppableId].items];
+        const destinationTasks =
+          source.droppableId === destination.droppableId
+            ? sourceTasks
+            : [...prev[destination.droppableId].items];
 
-      const [movedTask] = sourceTasks.splice(source.index, 1); // Remove the task from the source column
-      destinationTasks.splice(destination.index, 0, movedTask); // Insert task into the destination column
+        const [movedTask] = sourceTasks.splice(source.index, 1);
+        destinationTasks.splice(destination.index, 0, movedTask);
 
-      return {
-        ...prev,
-        [source.droppableId]: {
-          ...prev[source.droppableId],
-          items: sourceTasks, // Update source column tasks
-        },
-        ...(source.droppableId !== destination.droppableId && {
-          [destination.droppableId]: {
-            ...prev[destination.droppableId],
-            items: destinationTasks, // Update destination column tasks
+        return {
+          ...prev,
+          [source.droppableId]: {
+            ...prev[source.droppableId],
+            items: sourceTasks,
           },
-        }),
-      };
-    });
+          ...(source.droppableId !== destination.droppableId && {
+            [destination.droppableId]: {
+              ...prev[destination.droppableId],
+              items: destinationTasks,
+            },
+          }),
+        };
+      });
+    }
   };
 
   return (
@@ -131,31 +134,58 @@ const KanbanBoard = () => {
       <h2>My Board</h2>
       <div className='kanban-board-wrapper'>
         <DragDropContext onDragEnd={onDragEnd}>
-          <div className='kanban-board' ref={boardRef}>
-            {Object.keys(tasks).map((columnId) => (
-              <Column
-                key={columnId}
-                id={columnId}
-                title={tasks[columnId].title}
-                tasks={tasks[columnId].items}
-                addTask={addTask}
-                deleteTask={deleteTask}
-                deleteColumn={deleteColumn}
-                editTask={editTask}
-              />
-            ))}
+          <Droppable droppableId='board' direction='horizontal' type='COLUMN'>
+            {(provided) => (
+              <div
+                className='kanban-board'
+                ref={(el) => {
+                  boardRef.current = el;
+                  provided.innerRef(el);
+                }}
+                {...provided.droppableProps}
+              >
+                {columnOrder.map((columnId, index) => (
+                  <Draggable
+                    key={columnId}
+                    draggableId={columnId}
+                    index={index}
+                  >
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                      >
+                        <Column
+                          key={columnId}
+                          id={columnId}
+                          title={tasks[columnId].title}
+                          tasks={tasks[columnId].items}
+                          addTask={addTask}
+                          deleteTask={deleteTask}
+                          deleteColumn={deleteColumn}
+                          editTask={editTask}
+                          activeMenuColumn={activeMenuColumn}
+                          setActiveMenuColumn={setActiveMenuColumn}
+                        />
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
 
-            {/* Add New Column Button */}
-            <div className='add-column'>
-              <input
-                type='text'
-                value={newColumnName}
-                onChange={(e) => setNewColumnName(e.target.value)}
-                placeholder='New column name'
-              />
-              <button onClick={addColumn}>+ Add Column</button>
-            </div>
-          </div>
+                <div className='add-column'>
+                  <input
+                    type='text'
+                    value={newColumnName}
+                    onChange={(e) => setNewColumnName(e.target.value)}
+                    placeholder='New column name'
+                  />
+                  <button onClick={addColumn}>+ Add Column</button>
+                </div>
+              </div>
+            )}
+          </Droppable>
         </DragDropContext>
       </div>
     </div>

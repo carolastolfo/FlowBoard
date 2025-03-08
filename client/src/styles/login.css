@@ -1,0 +1,78 @@
+/* Container for the whole login page */
+.login-container {
+    width: 90vw;
+    min-height: 100vh;
+    background-color: #f4f4f4;
+    padding: 20px;
+  }
+  
+  /* Header styling */
+  .login-header {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
+  }
+  
+  .login-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #0056b3;
+  }
+  
+  /* Form styling */
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  /* Input fields styling */
+  .login-input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+    width: 250px;
+  }
+  
+  /* Button styling */
+  .login-button {
+    padding: 8px 15px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 250px;
+  }
+  
+  .login-button:disabled {
+    background-color: #cccccc;
+  }
+  
+  .login-button:hover:enabled {
+    background-color: #0056b3;
+  }
+  
+  /* Message styling */
+  .login-message {
+    margin-top: 20px;
+    font-size: 14px;
+    text-align: center;
+    padding: 10px;
+    border-radius: 5px;
+    width: 250px;
+  }
+  
+  .login-message.error {
+    color: red;
+    background-color: #f8d7da;
+  }
+  
+  .login-message:not(.error) {
+    color: green;
+    background-color: #d4edda;
+  }
+  

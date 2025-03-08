@@ -9,17 +9,16 @@ import './App.css'; // Import the global styles
 function App() {
   return (
     // added client side routing with react router dom
-    <Router> 
-    <Routes>
-      <Route path="/" element={<Homepage />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/boards" element={<Boards/>} />
-      <Route path="/board" element={<KanbanBoard/>} />
-      <Route path="/register" element={<Register/>} />
-    </Routes>
-  </Router>
+    <Router>
+      <Routes>
+        <Route path='/' element={<Homepage />} />
+        <Route path='/login' element={<Login />} />
+        <Route path='/boards' element={<Boards />} />
+        <Route path='/board' element={<KanbanBoard />} />
+        <Route path='/register' element={<Register />} />
+      </Routes>
+    </Router>
   );
 }
 
 export default App;
-

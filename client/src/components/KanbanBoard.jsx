@@ -1,14 +1,18 @@
 import { useState, useRef, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import Column from './Column';
+import '../styles/KanbanBoardStyles.css';
 
+// Updated
 // Represents the entire board with multiple columns
 const KanbanBoard = () => {
-  const [tasks, setTasks] = useState({
+  const initialsColumns = {
     todo: { title: 'To Do', items: [{ id: '1', content: 'Design UI' }] },
     doing: { title: 'Doing', items: [{ id: '2', content: 'Develop API' }] },
     done: { title: 'Done', items: [{ id: '3', content: 'Write Docs' }] },
-  });
+  };
+
+  const [tasks, setTasks] = useState(initialsColumns);
 
   const [columnOrder, setColumnOrder] = useState(Object.keys(tasks));
   const [newColumnName, setNewColumnName] = useState('');
@@ -17,7 +21,8 @@ const KanbanBoard = () => {
 
   useEffect(() => {
     if (boardRef.current) {
-      boardRef.current.scrollLeft = boardRef.current.scrollWidth;
+      boardRef.current.scrollLeft =
+        boardRef.current.scrollWidth / 2 - boardRef.current.clientWidth / 2;
     }
   }, [tasks]);
 

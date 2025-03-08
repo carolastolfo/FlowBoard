@@ -1,0 +1,277 @@
+h2 {
+  margin-bottom: 20px;
+  word-wrap: break-word;  
+  overflow-wrap: break-word;  
+  white-space: normal; 
+  line-height: 1.2;
+}
+
+.kanban-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  padding: 0 50px;
+}
+
+.kanban-board {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+}
+
+.column {
+  width: 300px;
+  background: rgba(255, 255, 255, 0.6);
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+  overflow: hidden; 
+}
+
+.add-column {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.6);
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 200px;
+  flex-shrink: 0; 
+  min-width: 200px; 
+  margin-right: 20px; 
+}
+
+.add-column input {
+  flex: 1;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.add-column button {
+  background-color: #6D72C3;
+  color: white;
+  font-size: 14px;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.add-column button:hover {
+  background-color: #5C60A5;
+}
+
+.column h2 {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0;
+  flex-grow: 1; 
+}
+
+.column-header {
+  display: flex;
+  width: 100%;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 10px;
+}
+
+.column-right {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.delete-column-btn, .list-column-btn {
+  background: none;
+  border: none;
+  color: #6D72C3;
+  cursor: pointer;
+  padding: 0;
+}
+
+.delete-column-btn, .list-column-btn:hover {
+  color: #5C60A5;
+}
+
+.add-task {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.add-task input {
+  flex: 1;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  outline: none;
+}
+
+.add-task button {
+  background-color: #6D72C3;
+  color: white;
+  font-size: 14px;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.add-task button:hover {
+  background-color: #5C60A5;
+}
+
+.task {
+  display: flex;
+  color: black;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 10px;
+  max-width: 100%;
+  background: white;
+  border-radius: 8px;
+  white-space: normal; 
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+.task:hover {
+  border: 1px solid #5C60A5;
+  cursor: pointer;
+}
+
+.task-textarea {
+  width: 95%;
+  overflow-y: auto;
+  resize: vertical;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  outline: none;
+  background: white;
+  color: black;
+  font-size: 14px;
+}
+
+.task-content {
+  display: block;
+  width: 100%;
+}
+
+.task-buttons {
+  display: flex;
+  flex-direction: row-reverse;
+  width: 100%;
+  margin-top: 5px;
+  align-items: center;
+}
+
+.edit-btn, .delete-btn {
+  background: none;
+  border: none;
+  color: #6D72C3;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 5px;
+}
+
+.edit-btn:hover {
+  color: #5C60A5;
+}
+
+.delete-btn:hover {
+  color: #5C60A5;
+}
+
+.task-checkbox {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  appearance: none; 
+  border: 2px solid #ddd;
+  background-color: white;
+  cursor: pointer;
+  position: relative;
+  margin-left: 5px;
+}
+
+.task-checkbox:checked {
+  background-color: #07b928; 
+  border: 2px solid #07b928;
+}
+
+.task-checkbox:checked::after {
+  content: '✓';
+  font-size: 16px;
+  color: white;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.completed {
+  text-decoration: line-through;
+  color: gray;
+}
+
+.menu {
+  position: absolute;
+  top: 0;
+  right: 20px;
+  background: white;
+  width: 250px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+  overflow: visible;
+  z-index: 1;
+}
+
+.menu button {
+  width: 100%;
+  text-align: left;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  background-color: white;
+  margin-bottom: 10px;
+}
+
+.menu button:hover {
+  background-color:  #e8e9fb;
+  border-radius: 0;
+}
+
+.menu-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+  padding-top: 10px;
+  padding-left: 15px;
+  padding-right: 10px;
+}
+
+.header-btn {
+  display: flex;
+}
+
+.close-list-menu-btn {
+  background: none;
+  border-radius: 5px !important;
+  color: black;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 5px;
+}

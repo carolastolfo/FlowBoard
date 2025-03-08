@@ -32,16 +32,17 @@ h2 {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  width: 100vw;
+  width: 100%;
   height: 100vh;
   padding: 50px;
 }
 
-.kanban-board-wrapper {
+/* .kanban-board-wrapper {
   display: flex;
   justify-content: flex-start; 
   width: 100%;
-}
+  background-color: aqua;
+} */
 
 .kanban-board {
   display: flex;
@@ -114,6 +115,7 @@ h2 {
 }
 
 .column-right {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -258,11 +260,14 @@ h2 {
 
 .menu {
   position: absolute;
-  top: 125px;
+  top: 30px;
+  right: 0px;
   background: white;
-  width: 300px;
+  width: 270px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
   border-radius: 5px;
+  overflow: visible;
+  z-index: 1;
 }
 
 .menu button {

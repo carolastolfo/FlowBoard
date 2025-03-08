@@ -132,62 +132,56 @@ const KanbanBoard = () => {
   return (
     <div className='kanban-container'>
       <h2>My Board</h2>
-      <div className='kanban-board-wrapper'>
-        <DragDropContext onDragEnd={onDragEnd}>
-          <Droppable droppableId='board' direction='horizontal' type='COLUMN'>
-            {(provided) => (
-              <div
-                className='kanban-board'
-                ref={(el) => {
-                  boardRef.current = el;
-                  provided.innerRef(el);
-                }}
-                {...provided.droppableProps}
-              >
-                {columnOrder.map((columnId, index) => (
-                  <Draggable
-                    key={columnId}
-                    draggableId={columnId}
-                    index={index}
-                  >
-                    {(provided) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                      >
-                        <Column
-                          key={columnId}
-                          id={columnId}
-                          title={tasks[columnId].title}
-                          tasks={tasks[columnId].items}
-                          addTask={addTask}
-                          deleteTask={deleteTask}
-                          deleteColumn={deleteColumn}
-                          editTask={editTask}
-                          activeMenuColumn={activeMenuColumn}
-                          setActiveMenuColumn={setActiveMenuColumn}
-                        />
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId='board' direction='horizontal' type='COLUMN'>
+          {(provided) => (
+            <div
+              className='kanban-board'
+              ref={(el) => {
+                boardRef.current = el;
+                provided.innerRef(el);
+              }}
+              {...provided.droppableProps}
+            >
+              {columnOrder.map((columnId, index) => (
+                <Draggable key={columnId} draggableId={columnId} index={index}>
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                    >
+                      <Column
+                        key={columnId}
+                        id={columnId}
+                        title={tasks[columnId].title}
+                        tasks={tasks[columnId].items}
+                        addTask={addTask}
+                        deleteTask={deleteTask}
+                        deleteColumn={deleteColumn}
+                        editTask={editTask}
+                        activeMenuColumn={activeMenuColumn}
+                        setActiveMenuColumn={setActiveMenuColumn}
+                      />
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
 
-                <div className='add-column'>
-                  <input
-                    type='text'
-                    value={newColumnName}
-                    onChange={(e) => setNewColumnName(e.target.value)}
-                    placeholder='New column name'
-                  />
-                  <button onClick={addColumn}>+ Add Column</button>
-                </div>
+              <div className='add-column'>
+                <input
+                  type='text'
+                  value={newColumnName}
+                  onChange={(e) => setNewColumnName(e.target.value)}
+                  placeholder='New column name'
+                />
+                <button onClick={addColumn}>+ Add Column</button>
               </div>
-            )}
-          </Droppable>
-        </DragDropContext>
-      </div>
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
     </div>
   );
 };

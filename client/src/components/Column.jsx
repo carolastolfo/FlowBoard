@@ -1,18 +1,55 @@
-import { useState } from 'react';
 import { Droppable } from '@hello-pangea/dnd';
 import Task from './Task';
+import { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBars } from '@fortawesome/free-solid-svg-icons';
+import ListMenu from './ListMenu';
 
-const Column = ({ title, tasks, id, addTask, deleteTask, editTask }) => {
+// Represents a single column in the Kanban board
+const Column = ({
+  title,
+  tasks,
+  id,
+  addTask,
+  deleteTask,
+  editTask,
+  deleteColumn,
+  activeMenuColumn,
+  setActiveMenuColumn,
+}) => {
   const [newTask, setNewTask] = useState('');
-
-  const handleAddTask = () => {
-    addTask(id, newTask);
-    setNewTask('');
-  };
+  const isMenuOpen = activeMenuColumn === id;
 
   return (
     <div className='column'>
-      <h2>{title}</h2>
+      <div className='column-header'>
+        <h2>
+          {title.split('\n').map((line, index) => (
+            <span key={index}>
+              {line}
+              <br />
+            </span>
+          ))}
+        </h2>
+
+        <div className='column-right'>
+          <button
+            className='list-column-btn'
+            title='List Actions'
+            onClick={() => setActiveMenuColumn(isMenuOpen ? null : id)}
+          >
+            <FontAwesomeIcon icon={faBars} />
+          </button>
+
+          {isMenuOpen && (
+            <ListMenu
+              deleteColumn={deleteColumn}
+              id={id}
+              setActiveMenuColumn={setActiveMenuColumn}
+            />
+          )}
+        </div>
+      </div>
 
       <div className='add-task'>
         <input
@@ -21,9 +58,19 @@ const Column = ({ title, tasks, id, addTask, deleteTask, editTask }) => {
           onChange={(e) => setNewTask(e.target.value)}
           placeholder='Enter task...'
         />
-        <button onClick={handleAddTask}>+ Add</button>
+
+        <button
+          onClick={() => {
+            if (!newTask.trim()) return;
+            addTask(id, newTask);
+            setNewTask('');
+          }}
+        >
+          + Add
+        </button>
       </div>
 
+      {/* Droppable area for drag-and-drop functionality */}
       <Droppable droppableId={id}>
         {(provided) => (
           <div

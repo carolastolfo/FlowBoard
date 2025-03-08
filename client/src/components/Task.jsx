@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Draggable } from '@hello-pangea/dnd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faPencilSquare } from '@fortawesome/free-solid-svg-icons';
@@ -7,11 +7,31 @@ const Task = ({ task, index, columnId, deleteTask, editTask }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newContent, setNewContent] = useState(task.content);
 
-  const handleEdit = () => {
-    if (isEditing) {
-      editTask(columnId, task.id, newContent);
+  // Update content when task content changes
+  useEffect(() => {
+    setNewContent(task.content);
+  }, [task.content]);
+
+  // Function to handle editing the task
+  const handleEdit = (e) => {
+    if (e) e.preventDefault();
+
+    if (newContent.trim()) {
+      editTask(columnId, task.id, {
+        content: newContent,
+        completed: task.completed,
+      });
     }
-    setIsEditing(!isEditing);
+
+    setIsEditing(false);
+  };
+
+  // Handle toggling the checkbox state
+  const handleCheckboxChange = () => {
+    editTask(columnId, task.id, {
+      content: task.content,
+      completed: !task.completed,
+    });
   };
 
   return (
@@ -24,19 +44,40 @@ const Task = ({ task, index, columnId, deleteTask, editTask }) => {
           className='task'
         >
           {isEditing ? (
-            <input
-              className='task-input'
-              type='text'
+            <textarea
+              className='task-textarea'
               value={newContent}
               onChange={(e) => setNewContent(e.target.value)}
-              onBlur={handleEdit}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleEdit(e);
+                }
+              }}
               autoFocus
             />
           ) : (
-            <span>{task.content}</span>
+            <span
+              className={`task-content ${task.completed ? 'completed' : ''}`}
+            >
+              {task.content}
+            </span>
           )}
+
           <div className='task-buttons'>
-            <button className='edit-btn' onClick={handleEdit} title='Edit Task'>
+            <input
+              type='checkbox'
+              className='task-checkbox'
+              checked={task.completed || false}
+              onChange={handleCheckboxChange}
+              title='Mark complete'
+            />
+
+            <button
+              className='edit-btn'
+              onClick={() => setIsEditing(true)}
+              title='Edit Task'
+            >
               <FontAwesomeIcon icon={faPencilSquare} />
             </button>
             <button

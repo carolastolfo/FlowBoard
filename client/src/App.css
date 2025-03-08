@@ -1,108 +1,22 @@
-/* General Styling */
-body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body, html {
+  overflow-x: auto; 
   height: 100vh;
   margin: 0;
 }
 
-/* Main Board Container */
-.kanban-board {
+body {
   display: flex;
-  gap: 20px;
-  padding: 20px;
-}
-
-/* Columns */
-.column {
-  width: 250px;
-  background: white;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.column h2 {
-  text-align: center;
-  font-size: 18px;
-  font-weight: bold;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #ddd;
-}
-
-/* Add Task Section */
-.add-task {
-  display: flex;
-  gap: 5px;
-  margin-bottom: 10px;
-}
-
-.add-task input {
-  flex: 1;
-  padding: 5px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-}
-
-.add-task button {
-  background-color: #28a745;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
-.add-task button:hover {
-  background-color: #218838;
-}
-
-.task {
-  background-color: #007bff;
-  color: white;
-  padding: 10px;
-  border-radius: 5px;
-  margin-bottom: 8px;
-  cursor: grab;
-  transition: transform 0.2s ease-in-out;
-  display: flex;
-  justify-content: space-between;
+  background-color: #E5D4ED;
+  font-family: Arial, sans-serif;
+  justify-content: center;
   align-items: center;
-}
-
-.task:hover {
-  transform: scale(1.05);
-}
-
-.task-buttons {
-  display: flex;
-  gap: 5px;
-}
-
-.edit-btn, .delete-btn {
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-  font-size: 16px;
-  padding: 5px;
-}
-
-.edit-btn:hover {
-  color: #D6D6D6;
-}
-
-.delete-btn:hover {
-  color: #D6D6D6;
-}
-
-.task-input {
-  width: 100%;
-  border: none;
-  padding: 5px;
-  border-radius: 3px;
-  font-size: 14px;
+  height: 100vh;
+  margin: 0;
+  padding-top: 100px;
 }

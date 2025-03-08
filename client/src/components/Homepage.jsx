@@ -3,9 +3,7 @@ import '../styles/home.css';
 import todoImage from '../assets/to-do.jpg';
 
 const Homepage = () => {
-  // const redirectToLogin = () => {
-  //   window.location.href = "/login";  // Redirects the user to /login
-  // };
+
 
   return (
     <div className='homepage-container'>

@@ -37,13 +37,6 @@ h2 {
   padding: 50px;
 }
 
-/* .kanban-board-wrapper {
-  display: flex;
-  justify-content: flex-start; 
-  width: 100%;
-  background-color: aqua;
-} */
-
 .kanban-board {
   display: flex;
   gap: 20px;

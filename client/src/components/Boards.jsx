@@ -66,7 +66,7 @@ const Boards = () => {
                             key={board.id}
                             className="board-card"
                             style={{ backgroundColor: board.background_color }}
-                            onClick={handleRedirect(board.id)} // click to go to /board
+                            onClick={() => handleRedirect(board.id)} // click to go to /board
                         >
                             <h2>{board.name}</h2>
                             <p>Team Members: {board.team_members}</p>

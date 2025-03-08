@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import '../styles/home.css';
 import todoImage from '../assets/to-do.jpg';
 
 const Homepage = () => {
 
+  const navigate = useNavigate();
 
   return (
     <div className='homepage-container'>
@@ -28,9 +30,7 @@ const Homepage = () => {
               placeholder='Enter your email'
               className='email-input'
             />
-            <Link to='/register' className='register-button'>
-              Register
-            </Link>
+            <button className='registration-button' onClick={() => navigate("/register")}>Register</button>
           </div>
         </div>
         <div className='hero-item'>

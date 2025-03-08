@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/Boards.css";
 
 const Boards = () => {
@@ -8,6 +9,8 @@ const Boards = () => {
         { id: 102, name: "Marketing Plan", background_color: "pink", team_members: [1] },
     ]);
     const [error, setError] = useState("");
+    const navigate = useNavigate(); 
+
 
     const handleSearch = async () => {
         if (!searchId) {
@@ -30,6 +33,13 @@ const Boards = () => {
             setError(err.message);
         }
     };
+
+    // function to redirect to board
+    const handleRedirect = (boardId) => {
+        setTimeout(() => {
+            navigate("/board"); // redirect user and maybe later pass on boardid as param 
+          }, 1000); 
+    }
 
 
     return (
@@ -56,6 +66,7 @@ const Boards = () => {
                             key={board.id}
                             className="board-card"
                             style={{ backgroundColor: board.background_color }}
+                            onClick={() => handleRedirect(board.id)} // click to go to /board
                         >
                             <h2>{board.name}</h2>
                             <p>Team Members: {board.team_members}</p>

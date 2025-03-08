@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/login.css"; 
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState(""); // Message state to display response or error
+  const navigate = useNavigate(); // Initialize navigate
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -23,6 +25,12 @@ const Login = () => {
           // Handle response data
           if (response.ok) {
             setMessage(JSON.stringify(data.message));
+
+            // Redirect to boards page after successful login
+            setTimeout(() => {
+              navigate("/boards"); // Redirect user and maybe later pass on user id as param /${data.userId}
+            }, 1000); // Delay for UX
+
           } else {
             setMessage(JSON.stringify(data.message));
           }

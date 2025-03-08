@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/register.css";
 
 const Register = () => {
@@ -6,6 +7,7 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const navigate = useNavigate(); 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,6 +30,12 @@ const Register = () => {
 
       if (response.ok) {
         setMessage("Registration successful!");
+
+        // Redirect to boards page after successful registration
+        setTimeout(() => {
+          navigate("/boards"); // Redirect user and maybe later pass on user id as param /${data.userId}
+        }, 1000); // Delay for UX
+
       } else {
         setMessage(`Error: ${data.message || "Registration failed"}`);
       }

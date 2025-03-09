@@ -110,6 +110,31 @@ const fetchAddColumn = async (columnName, setTasks, setColumnOrder) => {
 };
 
 // Function to delete a column
+// Function to fetch delete column
+const fetchDeleteColumn = async (columnId, setTasks, setColumnOrder) => {
+  try {
+    const response = await fetch(
+      `http://localhost:8000/fetch/deletecolumn/${columnId}`,
+      {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Failed to delete column:', errorData);
+      return;
+    }
+
+    const data = await response.json();
+
+    setTasks(data.tasks);
+    setColumnOrder(Object.keys(data.tasks));
+  } catch (error) {
+    console.error('Error deleting column:', error);
+  }
+};
 
 // Represents the entire board with multiple columns
 const KanbanBoard = () => {
@@ -190,7 +215,8 @@ const KanbanBoard = () => {
   };
 
   // Function to delete a column
-  const deleteColumn = (columnId) => {
+  const deleteColumn = async (columnId) => {
+    await fetchDeleteColumn(columnId, setTasks, setColumnOrder);
     setTasks((prev) => {
       const updatedTasks = { ...prev };
       delete updatedTasks[columnId];

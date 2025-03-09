@@ -234,6 +234,23 @@ router.post("/addcolumn", (req, res) => {
 });
 
 // Route to delete a column
+// Route to delete a column
+router.delete("/deletecolumn/:columnId", (req, res) => {
+    const { columnId } = req.params;
+
+    console.log("Received delete column request:", columnId);
+
+    if (!tasks[columnId]) {
+        return res.status(400).json({ message: "Invalid column ID" });
+    }
+
+    // Delete the column
+    delete tasks[columnId];
+
+    console.log("Updated tasks after deleting column:", JSON.stringify(tasks));
+
+    res.json({ message: "Column deleted", tasks });
+});
 
 
 export default router;

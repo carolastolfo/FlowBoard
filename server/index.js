@@ -13,7 +13,7 @@ app.use(cors());
 // routes
 app.use("/fetch", fetch_router);
 
-app.get("/", (req, res) => { 
+app.get("/", (req, res) => {
   res.send("Welcome to the server");
 });
 
@@ -21,6 +21,6 @@ app.listen(PORT, () => {
   console.log(`http://localhost:${PORT}`);
 });
 
-app.use( (req, res) => {
+app.use((req, res) => {
   res.send(`No request for ${req.url} exists`);
 });

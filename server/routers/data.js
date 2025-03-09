@@ -2,9 +2,11 @@ export const data = {
     users: [
         {
             id: 1,
-            username: "john_doe",
+            // username: "john_doe",
+            username: "admin",
             email: "john@example.com",
-            password: "hashed_password",
+            // password: "hashed_password",
+            password: "admin",
             role: "admin",
             boards: [101, 102],
         },

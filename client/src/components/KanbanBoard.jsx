@@ -3,21 +3,130 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import Column from './Column';
 import '../styles/KanbanBoardStyles.css';
 
-// Updated
+// Function to fetch task
+const fetchTask = async (setTasks) => {
+  console.log('Fetching tasks...');
+  try {
+    const response = await fetch(`http://localhost:8000/fetch/task`);
+    const data = await response.json();
+
+    setTasks(data);
+  } catch (error) {
+    console.error('Error fetching tasks:', error);
+  }
+};
+
+// Function to fetch add task
+const fetchAddTask = async (columnId, content, setTasks) => {
+  if (!content.trim()) return;
+
+  try {
+    const response = await fetch(`http://localhost:8000/fetch/addtask`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ columnId, content }),
+    });
+
+    const data = await response.json();
+
+    setTasks(data.tasks);
+  } catch (error) {
+    console.error('Error adding task:', error);
+  }
+};
+
+// Function to fetch delete task
+const fetchDeleteTask = async (columnId, taskId, updateTasks) => {
+  try {
+    const response = await fetch(
+      `http://localhost:8000/fetch/deletetask/${columnId}/${taskId}`,
+      {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Failed to delete task:', errorText);
+      return;
+    }
+
+    const data = await response.json();
+    console.log('Updated tasks after deletion:', data.tasks);
+    updateTasks(data.tasks);
+  } catch (error) {
+    console.error('Error deleting task:', error);
+  }
+};
+
+// Function to fetch edit task
+const fetchEditTask = async (columnId, taskId, updatedContent, setTasks) => {
+  try {
+    const response = await fetch(`http://localhost:8000/fetch/edittask`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ columnId, taskId, content: updatedContent }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Failed to edit task:', errorData);
+      return;
+    }
+
+    const data = await response.json();
+    console.log('Updated tasks after editing:', data.tasks);
+
+    setTasks(data.tasks);
+  } catch (error) {
+    console.error('Error editing task:', error);
+  }
+};
+
+// Function to add a column
+const fetchAddColumn = async (columnName, setTasks, setColumnOrder) => {
+  try {
+    const response = await fetch(`http://localhost:8000/fetch/addcolumn`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ columnName }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Failed to add column:', errorData);
+      return;
+    }
+
+    const data = await response.json();
+    console.log('Updated tasks after adding a column:', data.tasks);
+
+    setTasks(data.tasks);
+    setColumnOrder(Object.keys(data.tasks));
+  } catch (error) {
+    console.error('Error adding column:', error);
+  }
+};
+
+// Function to delete a column
+
 // Represents the entire board with multiple columns
 const KanbanBoard = () => {
-  const initialsColumns = {
-    todo: { title: 'To Do', items: [{ id: '1', content: 'Design UI' }] },
-    doing: { title: 'Doing', items: [{ id: '2', content: 'Develop API' }] },
-    done: { title: 'Done', items: [{ id: '3', content: 'Write Docs' }] },
-  };
-
-  const [tasks, setTasks] = useState(initialsColumns);
-
+  const [tasks, setTasks] = useState({});
   const [columnOrder, setColumnOrder] = useState(Object.keys(tasks));
   const [newColumnName, setNewColumnName] = useState('');
   const boardRef = useRef(null);
   const [activeMenuColumn, setActiveMenuColumn] = useState(null);
+
+  // Fetch tasks when the component mounts
+  useEffect(() => {
+    fetchTask(setTasks, setColumnOrder);
+  }, []);
+
+  useEffect(() => {
+    setColumnOrder(Object.keys(tasks));
+  }, [tasks]);
 
   useEffect(() => {
     if (boardRef.current) {
@@ -31,30 +140,42 @@ const KanbanBoard = () => {
     if (!content.trim()) return;
 
     setTasks((prev) => {
+      const columnTasks = prev[columnId].items;
+
+      const maxId =
+        columnTasks.length > 0
+          ? Math.max(...columnTasks.map((task) => parseInt(task.id, 10)))
+          : 0;
+
+      const newTaskId = (maxId + 1).toString();
+
       const updatedItems = [
-        ...prev[columnId].items,
-        { id: Date.now().toString(), content, completed: false },
+        ...columnTasks,
+        { id: newTaskId, content, completed: false },
       ];
       return {
         ...prev,
         [columnId]: { ...prev[columnId], items: updatedItems },
       };
     });
+    fetchAddTask(columnId, content, setTasks);
+    console.log('Updated tasks:', tasks);
   };
 
-  // Function to delete a task from a specific column
-  const deleteTask = (columnId, taskId) => {
-    setTasks((prev) => {
-      const updatedItems = prev[columnId].items.filter(
-        (task) => task.id !== taskId
-      );
-      return {
-        ...prev,
-        [columnId]: { ...prev[columnId], items: updatedItems },
-      };
-    });
+  // Function to delete a task
+  const deleteTask = async (columnId, taskId) => {
+    await fetchDeleteTask(columnId, taskId, setTasks);
+
+    setTasks((prev) => ({
+      ...prev,
+      [columnId]: {
+        ...prev[columnId],
+        items: prev[columnId].items.filter((task) => task.id !== taskId),
+      },
+    }));
   };
 
+  // Function to edit a task
   const editTask = (columnId, taskId, updatedTask) => {
     setTasks((prev) => {
       const updatedItems = prev[columnId].items.map((task) =>
@@ -65,6 +186,7 @@ const KanbanBoard = () => {
         [columnId]: { ...prev[columnId], items: updatedItems },
       };
     });
+    fetchEditTask(columnId, taskId, updatedTask.content, setTasks);
   };
 
   // Function to delete a column
@@ -89,12 +211,12 @@ const KanbanBoard = () => {
     setColumnOrder((prev) => [...prev, newColumnId]);
     setNewColumnName('');
 
-    // Auto-scroll to new column
     setTimeout(() => {
       if (boardRef.current) {
         boardRef.current.scrollLeft = boardRef.current.scrollWidth;
       }
     }, 100);
+    fetchAddColumn(newColumnName, setTasks, setColumnOrder);
   };
 
   // Function to handle drag-and-drop task movement

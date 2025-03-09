@@ -110,7 +110,6 @@ const fetchAddColumn = async (columnName, setTasks, setColumnOrder) => {
 };
 
 // Function to delete a column
-// Function to fetch delete column
 const fetchDeleteColumn = async (columnId, setTasks, setColumnOrder) => {
   try {
     const response = await fetch(

@@ -234,7 +234,6 @@ router.post("/addcolumn", (req, res) => {
 });
 
 // Route to delete a column
-// Route to delete a column
 router.delete("/deletecolumn/:columnId", (req, res) => {
     const { columnId } = req.params;
 

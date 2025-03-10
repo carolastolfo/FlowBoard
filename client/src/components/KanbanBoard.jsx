@@ -3,6 +3,7 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import Column from './Column';
 import '../styles/KanbanBoardStyles.css';
 
+// Last version
 // Function to fetch task
 const fetchTask = async (setTasks) => {
   console.log('Fetching tasks...');
@@ -16,67 +17,85 @@ const fetchTask = async (setTasks) => {
   }
 };
 
-// Function to fetch add task
+// Function to fecth add a task
 const fetchAddTask = async (columnId, content, setTasks) => {
   if (!content.trim()) return;
 
   try {
-    const response = await fetch(`http://localhost:8000/fetch/addtask`, {
+    const response = await fetch('http://localhost:8000/fetch/addtask', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ columnId, content }),
     });
 
+    if (!response.ok) {
+      throw new Error('Failed to add task');
+    }
+
     const data = await response.json();
 
-    setTasks(data.tasks);
+    setTasks(data.tasks); // Update state with new task list
   } catch (error) {
     console.error('Error adding task:', error);
   }
 };
 
 // Function to fetch delete task
-const fetchDeleteTask = async (columnId, taskId, updateTasks) => {
+const fetchDeleteTask = async (columnId, taskId, setTasks) => {
   try {
     const response = await fetch(
       `http://localhost:8000/fetch/deletetask/${columnId}/${taskId}`,
       {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
       }
     );
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Failed to delete task:', errorText);
-      return;
+      throw new Error('Failed to delete task');
     }
 
     const data = await response.json();
-    console.log('Updated tasks after deletion:', data.tasks);
-    updateTasks(data.tasks);
+    setTasks(data.tasks); // Update state with the new tasks list
   } catch (error) {
     console.error('Error deleting task:', error);
   }
 };
 
+// Function to fetch update task column
+const fetchUpdateTaskColumn = async (taskId, fromColumnId, toColumnId) => {
+  try {
+    await fetch(`http://localhost:8000/fetch/updateTaskColumn/${taskId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fromColumnId, toColumnId }),
+    });
+    console.log(`Task ${taskId} moved from ${fromColumnId} to ${toColumnId}`);
+  } catch (error) {
+    console.error('Error updating task column:', error);
+  }
+};
+
 // Function to fetch edit task
-const fetchEditTask = async (columnId, taskId, updatedContent, setTasks) => {
+const fetchEditTask = async (columnId, taskId, updatedTask, setTasks) => {
   try {
     const response = await fetch(`http://localhost:8000/fetch/edittask`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ columnId, taskId, content: updatedContent }),
+      body: JSON.stringify({
+        columnId,
+        taskId,
+        content: updatedTask.content,
+        completed: updatedTask.completed,
+      }),
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Failed to edit task:', errorData);
+      console.error('Failed to edit task:', await response.json());
       return;
     }
 
     const data = await response.json();
-    console.log('Updated tasks after editing:', data.tasks);
+    console.log('Server response:', data.tasks);
 
     setTasks(data.tasks);
   } catch (error) {
@@ -84,7 +103,7 @@ const fetchEditTask = async (columnId, taskId, updatedContent, setTasks) => {
   }
 };
 
-// Function to add a column
+// Function to fetch add a column
 const fetchAddColumn = async (columnName, setTasks, setColumnOrder) => {
   try {
     const response = await fetch(`http://localhost:8000/fetch/addcolumn`, {
@@ -109,27 +128,25 @@ const fetchAddColumn = async (columnName, setTasks, setColumnOrder) => {
   }
 };
 
-// Function to delete a column
+// Function to fetch delete a column
 const fetchDeleteColumn = async (columnId, setTasks, setColumnOrder) => {
   try {
     const response = await fetch(
       `http://localhost:8000/fetch/deletecolumn/${columnId}`,
       {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
       }
     );
 
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Failed to delete column:', errorData);
-      return;
+      throw new Error('Failed to delete column');
     }
 
     const data = await response.json();
+    console.log('Updated tasks after deleting column:', data.tasks);
 
-    setTasks(data.tasks);
-    setColumnOrder(Object.keys(data.tasks));
+    setTasks(data.tasks); // Update state with new tasks list
+    setColumnOrder((prev) => prev.filter((id) => id !== columnId)); // Remove from column order
   } catch (error) {
     console.error('Error deleting column:', error);
   }
@@ -143,7 +160,6 @@ const KanbanBoard = () => {
   const boardRef = useRef(null);
   const [activeMenuColumn, setActiveMenuColumn] = useState(null);
 
-  // Fetch tasks when the component mounts
   useEffect(() => {
     fetchTask(setTasks, setColumnOrder);
   }, []);
@@ -164,18 +180,9 @@ const KanbanBoard = () => {
     if (!content.trim()) return;
 
     setTasks((prev) => {
-      const columnTasks = prev[columnId].items;
-
-      const maxId =
-        columnTasks.length > 0
-          ? Math.max(...columnTasks.map((task) => parseInt(task.id, 10)))
-          : 0;
-
-      const newTaskId = (maxId + 1).toString();
-
       const updatedItems = [
-        ...columnTasks,
-        { id: newTaskId, content, completed: false },
+        ...prev[columnId].items,
+        { id: Date.now().toString(), content, completed: false },
       ];
       return {
         ...prev,
@@ -186,7 +193,7 @@ const KanbanBoard = () => {
     console.log('Updated tasks:', tasks);
   };
 
-  // Function to delete a task
+  // Function to delete a task from a specific column
   const deleteTask = async (columnId, taskId) => {
     await fetchDeleteTask(columnId, taskId, setTasks);
 
@@ -199,7 +206,6 @@ const KanbanBoard = () => {
     }));
   };
 
-  // Function to edit a task
   const editTask = (columnId, taskId, updatedTask) => {
     setTasks((prev) => {
       const updatedItems = prev[columnId].items.map((task) =>
@@ -210,38 +216,41 @@ const KanbanBoard = () => {
         [columnId]: { ...prev[columnId], items: updatedItems },
       };
     });
-    fetchEditTask(columnId, taskId, updatedTask.content, setTasks);
+    fetchEditTask(columnId, taskId, updatedTask, setTasks);
   };
 
   // Function to delete a column
   const deleteColumn = async (columnId) => {
     await fetchDeleteColumn(columnId, setTasks, setColumnOrder);
+
     setTasks((prev) => {
       const updatedTasks = { ...prev };
       delete updatedTasks[columnId];
       return updatedTasks;
     });
+
     setColumnOrder((prev) => prev.filter((id) => id !== columnId));
   };
 
   // Function to add a new column
-  const addColumn = () => {
+  const addColumn = async () => {
     if (!newColumnName.trim()) return;
 
-    const newColumnId = `col-${Date.now()}`;
-    setTasks((prev) => ({
-      ...prev,
-      [newColumnId]: { title: newColumnName, items: [] },
-    }));
-    setColumnOrder((prev) => [...prev, newColumnId]);
-    setNewColumnName('');
+    try {
+      // 🔥 Fetch new column from backend (fetchAddColumn already handles state updates)
+      await fetchAddColumn(newColumnName, setTasks, setColumnOrder);
 
-    setTimeout(() => {
-      if (boardRef.current) {
-        boardRef.current.scrollLeft = boardRef.current.scrollWidth;
-      }
-    }, 100);
-    fetchAddColumn(newColumnName, setTasks, setColumnOrder);
+      setNewColumnName('');
+
+      // Auto-scroll to new column
+      setTimeout(() => {
+        if (boardRef.current) {
+          boardRef.current.scrollLeft = boardRef.current.scrollWidth;
+        }
+      }, 100);
+    } catch (error) {
+      console.error('Error adding column:', error);
+    }
   };
 
   // Function to handle drag-and-drop task movement
@@ -255,6 +264,9 @@ const KanbanBoard = () => {
       setColumnOrder(newOrder);
     } else {
       setTasks((prev) => {
+        const fromColumnId = source.droppableId;
+        const toColumnId = destination.droppableId;
+
         const sourceTasks = [...prev[source.droppableId].items];
         const destinationTasks =
           source.droppableId === destination.droppableId
@@ -263,6 +275,8 @@ const KanbanBoard = () => {
 
         const [movedTask] = sourceTasks.splice(source.index, 1);
         destinationTasks.splice(destination.index, 0, movedTask);
+
+        fetchUpdateTaskColumn(movedTask.id, fromColumnId, toColumnId);
 
         return {
           ...prev,

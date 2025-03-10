@@ -26,12 +26,18 @@ const Task = ({ task, index, columnId, deleteTask, editTask }) => {
     setIsEditing(false);
   };
 
-  // Handle toggling the checkbox state
   const handleCheckboxChange = () => {
-    editTask(columnId, task.id, {
+    if (task.content === undefined) {
+      console.error('Error: Task content is undefined', task);
+      return;
+    }
+
+    const updatedTask = {
       content: task.content,
       completed: !task.completed,
-    });
+    };
+
+    editTask(columnId, task.id, updatedTask);
   };
 
   return (
@@ -68,7 +74,7 @@ const Task = ({ task, index, columnId, deleteTask, editTask }) => {
             <input
               type='checkbox'
               className='task-checkbox'
-              checked={task.completed || false}
+              checked={task.completed ?? false}
               onChange={handleCheckboxChange}
               title='Mark complete'
             />

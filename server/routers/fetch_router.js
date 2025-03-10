@@ -127,9 +127,9 @@ router.post("/register", (req, res) => {
 
 // Initial Task Data
 const tasks = {
-    "col-1": { title: 'To Do', items: [{ id: '1', content: 'Design UI' }] },
-    "col-2": { title: 'Doing', items: [{ id: '1', content: 'Develop API' }] },
-    "col-3": { title: 'Done', items: [{ id: '1', content: 'Write Docs' }] },
+    "col-1": { title: 'To Do', items: [{ id: '101', content: 'Design UI' }] },
+    "col-2": { title: 'Doing', items: [{ id: '102', content: 'Develop API' }] },
+    "col-3": { title: 'Done', items: [{ id: '103', content: 'Write Docs' }] },
 };
 
 // Route to Fetch Tasks
@@ -143,50 +143,111 @@ router.get("/task", (req, res) => {
 router.post("/addtask", (req, res) => {
     const { columnId, content } = req.body;
 
-    if (!tasks[columnId]) {
-        return res.status(400).json({ message: "Invalid column ID" });
+    if (!content.trim()) {
+        return res.status(400).json({ message: "Task content cannot be empty" });
     }
 
-    const existingTasks = tasks[columnId].items;
-    const maxId = existingTasks.length > 0
-        ? Math.max(...existingTasks.map(task => parseInt(task.id)))
-        : 0;
+    if (!tasks[columnId]) {
+        return res.status(404).json({ message: "Column not found" });
+    }
 
-    const newTask = { id: (maxId + 1).toString(), content };
+    const newTask = {
+        id: Date.now().toString(),
+        content,
+        columnId,
+        completed: false
+    };
 
     tasks[columnId].items.push(newTask);
 
-    console.log("Updated tasks:", JSON.stringify(tasks));
-    res.json({ message: "Task added", tasks });
+    console.log("Task added:", newTask);
+
+    res.status(201).json({ message: "Task added successfully", task: newTask, tasks });
 });
 
 // Route to Delete a Task
 router.delete("/deletetask/:columnId/:taskId", (req, res) => {
     const { columnId, taskId } = req.params;
 
-    console.log("Received delete request:", columnId, taskId);
-
-    if (!columnId || !taskId || !tasks[columnId]) {
-        return res.status(400).json({ message: "Invalid column ID or Task ID" });
+    if (!tasks[columnId]) {
+        return res.status(404).json({ message: "Column not found" });
     }
 
-    console.log("Before deletion:", JSON.stringify(tasks[columnId].items, null, 2));
+    const taskIndex = tasks[columnId].items.findIndex(task => task.id === taskId);
 
-    tasks[columnId].items = tasks[columnId].items.filter(task => task.id !== taskId);
+    if (taskIndex === -1) {
+        return res.status(404).json({ message: "Task not found" });
+    }
 
-    console.log("After deletion:", JSON.stringify(tasks[columnId].items, null, 2));
+    // Remove the task
+    tasks[columnId].items.splice(taskIndex, 1);
 
-    res.json({ message: "Task deleted", tasks });
+    console.log(`Task ${taskId} deleted from column ${columnId}`);
+
+    res.json({ message: "Task deleted successfully", tasks });
+});
+
+// Route to Move a task
+router.put("/updateTaskColumn/:taskId", (req, res) => {
+    const { taskId } = req.params;
+    const { fromColumnId, toColumnId } = req.body;
+
+    if (!tasks[fromColumnId] || !tasks[toColumnId]) {
+        return res.status(404).json({ message: "One of the columns was not found" });
+    }
+
+    // Find the task in the old column
+    const taskIndex = tasks[fromColumnId].items.findIndex(task => task.id === taskId);
+    if (taskIndex === -1) {
+        return res.status(404).json({ message: "Task not found in the original column" });
+    }
+
+    // Remove the task from the old column
+    const [movedTask] = tasks[fromColumnId].items.splice(taskIndex, 1);
+
+    // Add the task to the new column
+    tasks[toColumnId].items.push(movedTask);
+
+    console.log(`Task "${movedTask.content}" moved from ${fromColumnId} to ${toColumnId}`);
+
+    res.json({ message: "Task moved successfully", tasks });
 });
 
 // Route to edit a Task
+// router.put("/edittask", (req, res) => {
+//     const { columnId, taskId, content } = req.body;
+
+//     if (!columnId || !taskId || !content) {
+//         return res.status(400).json({ message: "Missing columnId, taskId, or content" });
+//     }
+
+//     if (!tasks[columnId]) {
+//         return res.status(404).json({ message: "Column not found" });
+//     }
+
+//     let taskFound = false;
+//     tasks[columnId].items = tasks[columnId].items.map((task) => {
+//         if (task.id === taskId) {
+//             taskFound = true;
+//             return { ...task, content };
+//         }
+//         return task;
+//     });
+
+//     if (!taskFound) {
+//         return res.status(404).json({ message: "Task not found" });
+//     }
+
+//     console.log(`Task ${taskId} in column ${columnId} updated to "${content}"`);
+
+//     res.json({ message: "Task updated successfully", tasks });
+// });
+
 router.put("/edittask", (req, res) => {
-    const { columnId, taskId, content } = req.body;
+    const { columnId, taskId, content, completed } = req.body; // Include completed
 
-    console.log("Received edit request:", { columnId, taskId, content });
-
-    if (!columnId || !taskId || !content) {
-        return res.status(400).json({ message: "Missing columnId, taskId, or content" });
+    if (!columnId || !taskId || content === undefined || completed === undefined) {
+        return res.status(400).json({ message: "Missing columnId, taskId, content, or completed status" });
     }
 
     if (!tasks[columnId]) {
@@ -197,7 +258,7 @@ router.put("/edittask", (req, res) => {
     tasks[columnId].items = tasks[columnId].items.map((task) => {
         if (task.id === taskId) {
             taskFound = true;
-            return { ...task, content };
+            return { ...task, content, completed }; // Now updates both
         }
         return task;
     });
@@ -206,10 +267,11 @@ router.put("/edittask", (req, res) => {
         return res.status(404).json({ message: "Task not found" });
     }
 
-    console.log("Updated tasks:", JSON.stringify(tasks));
+    console.log(`Task ${taskId} in column ${columnId} updated to "${content}" with completed: ${completed}`);
 
-    res.json({ message: "Task updated", tasks });
+    res.json({ message: "Task updated successfully", tasks });
 });
+
 
 // Route to add a new column
 router.post("/addcolumn", (req, res) => {
@@ -228,7 +290,7 @@ router.post("/addcolumn", (req, res) => {
 
     tasks[newColumnId] = { title: columnName, items: [] };
 
-    console.log("Updated tasks after adding a new column:", JSON.stringify(tasks));
+    console.log(`New column added: ${columnName} (ID: ${newColumnId})`);
 
     res.status(201).json({ message: "Column added", tasks });
 });
@@ -243,14 +305,12 @@ router.delete("/deletecolumn/:columnId", (req, res) => {
         return res.status(400).json({ message: "Invalid column ID" });
     }
 
-    // Delete the column
     delete tasks[columnId];
 
-    console.log("Updated tasks after deleting column:", JSON.stringify(tasks));
+    console.log(`Column ${columnId} deleted successfully`);
 
     res.json({ message: "Column deleted", tasks });
 });
-
 
 export default router;
 

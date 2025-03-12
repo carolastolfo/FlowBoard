@@ -3,7 +3,7 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import Column from './Column';
 import '../styles/KanbanBoardStyles.css';
 
-// Last version
+// Last version OK
 // Function to fetch task
 const fetchTask = async (setTasks) => {
   console.log('Fetching tasks...');
@@ -64,11 +64,21 @@ const fetchDeleteTask = async (columnId, taskId, setTasks) => {
 // Function to fetch update task column
 const fetchUpdateTaskColumn = async (taskId, fromColumnId, toColumnId) => {
   try {
-    await fetch(`http://localhost:8000/fetch/updateTaskColumn/${taskId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fromColumnId, toColumnId }),
-    });
+    const response = await fetch(
+      `http://localhost:8000/fetch/updateTaskColumn/${taskId}`,
+      {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fromColumnId, toColumnId }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Failed to move task:', errorData);
+      return;
+    }
+
     console.log(`Task ${taskId} moved from ${fromColumnId} to ${toColumnId}`);
   } catch (error) {
     console.error('Error updating task column:', error);
@@ -86,6 +96,7 @@ const fetchEditTask = async (columnId, taskId, updatedTask, setTasks) => {
         taskId,
         content: updatedTask.content,
         completed: updatedTask.completed,
+        status: updatedTask.status,
       }),
     });
 
@@ -275,6 +286,13 @@ const KanbanBoard = () => {
 
         const [movedTask] = sourceTasks.splice(source.index, 1);
         destinationTasks.splice(destination.index, 0, movedTask);
+
+        if (!movedTask || !movedTask.id) {
+          console.error(
+            'Error: No se encontró el taskId en la columna de origen.'
+          );
+          return prev;
+        }
 
         fetchUpdateTaskColumn(movedTask.id, fromColumnId, toColumnId);
 

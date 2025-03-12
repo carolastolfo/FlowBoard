@@ -1,7 +1,38 @@
 import express from "express";
 import { data } from "./data.js";
+import { tasks } from "./data.js";
 
 const router = express.Router();
+
+// Route to Move a task
+router.put("/updateTaskColumn/:taskId", (req, res) => {
+    const taskId = req.params.taskId;
+    const { fromColumnId, toColumnId } = req.body;
+
+    if (!fromColumnId || !toColumnId) {
+        return res.status(400).json({ message: "Missing fromColumnId or toColumnId" });
+    }
+
+    if (!tasks[fromColumnId] || !tasks[toColumnId]) {
+        return res.status(404).json({ message: "One of the columns was not found" });
+    }
+
+    // Find the task in the old column
+    const taskIndex = tasks[fromColumnId].items.findIndex(task => task.id === taskId);
+    if (taskIndex === -1) {
+        return res.status(404).json({ message: "Task not found in the original column" });
+    }
+
+    // Remove the task from the old column
+    const [movedTask] = tasks[fromColumnId].items.splice(taskIndex, 1);
+
+    // Add the task to the new column
+    tasks[toColumnId].items.push(movedTask);
+
+    console.log(`Task "${movedTask.content}" moved from ${fromColumnId} to ${toColumnId}`);
+
+    res.json({ message: "Task moved successfully", tasks });
+});
 
 // Search boards by ID 
 router.get("/board/:boardId", (req, res) => {
@@ -125,13 +156,6 @@ router.post("/register", (req, res) => {
     res.status(201).json({ message: "User registered successfully" });
 });
 
-// Initial Task Data
-const tasks = {
-    "col-1": { title: 'To Do', items: [{ id: '101', content: 'Design UI' }] },
-    "col-2": { title: 'Doing', items: [{ id: '102', content: 'Develop API' }] },
-    "col-3": { title: 'Done', items: [{ id: '103', content: 'Write Docs' }] },
-};
-
 // Route to Fetch Tasks
 router.get("/task", (req, res) => {
     // console.log("Sending tasks:", tasks);
@@ -187,66 +211,11 @@ router.delete("/deletetask/:columnId/:taskId", (req, res) => {
     res.json({ message: "Task deleted successfully", tasks });
 });
 
-// Route to Move a task
-router.put("/updateTaskColumn/:taskId", (req, res) => {
-    const { taskId } = req.params;
-    const { fromColumnId, toColumnId } = req.body;
-
-    if (!tasks[fromColumnId] || !tasks[toColumnId]) {
-        return res.status(404).json({ message: "One of the columns was not found" });
-    }
-
-    // Find the task in the old column
-    const taskIndex = tasks[fromColumnId].items.findIndex(task => task.id === taskId);
-    if (taskIndex === -1) {
-        return res.status(404).json({ message: "Task not found in the original column" });
-    }
-
-    // Remove the task from the old column
-    const [movedTask] = tasks[fromColumnId].items.splice(taskIndex, 1);
-
-    // Add the task to the new column
-    tasks[toColumnId].items.push(movedTask);
-
-    console.log(`Task "${movedTask.content}" moved from ${fromColumnId} to ${toColumnId}`);
-
-    res.json({ message: "Task moved successfully", tasks });
-});
-
 // Route to edit a Task
-// router.put("/edittask", (req, res) => {
-//     const { columnId, taskId, content } = req.body;
-
-//     if (!columnId || !taskId || !content) {
-//         return res.status(400).json({ message: "Missing columnId, taskId, or content" });
-//     }
-
-//     if (!tasks[columnId]) {
-//         return res.status(404).json({ message: "Column not found" });
-//     }
-
-//     let taskFound = false;
-//     tasks[columnId].items = tasks[columnId].items.map((task) => {
-//         if (task.id === taskId) {
-//             taskFound = true;
-//             return { ...task, content };
-//         }
-//         return task;
-//     });
-
-//     if (!taskFound) {
-//         return res.status(404).json({ message: "Task not found" });
-//     }
-
-//     console.log(`Task ${taskId} in column ${columnId} updated to "${content}"`);
-
-//     res.json({ message: "Task updated successfully", tasks });
-// });
-
 router.put("/edittask", (req, res) => {
-    const { columnId, taskId, content, completed } = req.body; // Include completed
+    const { columnId, taskId, content, completed, status } = req.body;
 
-    if (!columnId || !taskId || content === undefined || completed === undefined) {
+    if (!columnId || !taskId || !content || status === undefined || completed === undefined) {
         return res.status(400).json({ message: "Missing columnId, taskId, content, or completed status" });
     }
 
@@ -258,7 +227,7 @@ router.put("/edittask", (req, res) => {
     tasks[columnId].items = tasks[columnId].items.map((task) => {
         if (task.id === taskId) {
             taskFound = true;
-            return { ...task, content, completed }; // Now updates both
+            return { ...task, content, completed, status };
         }
         return task;
     });
@@ -271,7 +240,6 @@ router.put("/edittask", (req, res) => {
 
     res.json({ message: "Task updated successfully", tasks });
 });
-
 
 // Route to add a new column
 router.post("/addcolumn", (req, res) => {
@@ -313,4 +281,3 @@ router.delete("/deletecolumn/:columnId", (req, res) => {
 });
 
 export default router;
-

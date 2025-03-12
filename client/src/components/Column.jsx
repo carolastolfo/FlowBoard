@@ -70,14 +70,9 @@ const Column = ({
         </button>
       </div>
 
-      {/* Droppable area for drag-and-drop functionality */}
       <Droppable droppableId={id}>
         {(provided) => (
-          <div
-            ref={provided.innerRef}
-            {...provided.droppableProps}
-            className='task-list'
-          >
+          <div ref={provided.innerRef} {...provided.droppableProps}>
             {tasks.map((task, index) => (
               <Task
                 key={task.id}

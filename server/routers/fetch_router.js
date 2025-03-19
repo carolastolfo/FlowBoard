@@ -18,13 +18,15 @@ router.put("/updateTaskColumn/:taskId", (req, res) => {
     }
 
     // Find the task in the old column
-    const taskIndex = tasks[fromColumnId].items.findIndex(task => task.id === taskId);
+    const taskIndex = tasks[fromColumnId].items.findIndex(task => task.id.toString() === taskId);
     if (taskIndex === -1) {
         return res.status(404).json({ message: "Task not found in the original column" });
     }
 
     // Remove the task from the old column
     const [movedTask] = tasks[fromColumnId].items.splice(taskIndex, 1);
+
+    movedTask.columnId = toColumnId;
 
     // Add the task to the new column
     tasks[toColumnId].items.push(movedTask);

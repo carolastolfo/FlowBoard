@@ -3,21 +3,21 @@ import { useNavigate } from "react-router-dom";
 import "../styles/login.css"; 
 
 const Login = () => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState(""); // Message state to display response or error
   const navigate = useNavigate(); // Initialize navigate
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const submission = { username, password };
+        const submission = { email, password };
         setMessage(""); // Clear any previous messages
       
         try {
-          const response = await fetch("http://localhost:8000/fetch/login", {
+          const response = await fetch("http://localhost:8000/user/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password }),
+            body: JSON.stringify(submission),
           });
       
           const data = await response.json();
@@ -50,9 +50,9 @@ const Login = () => {
       <form onSubmit={handleSubmit} className="login-form">
         <input
           type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           required
           className="login-input"
         />

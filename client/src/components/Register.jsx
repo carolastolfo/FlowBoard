@@ -16,7 +16,7 @@ const Register = () => {
     setMessage(""); // Clear previous message
 
     try {
-      const response = await fetch("http://localhost:8000/fetch/register", {
+      const response = await fetch("http://localhost:8000/user/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -1,14 +1,16 @@
 import express from "express";
 import User from "../models/user.js"; 
 import bcrypt from "bcryptjs";
+import auth from "../middleware/auth.js";
+
 
 const router = express.Router();
+
 
 // Login route
 router.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;
-        
         console.log(`trying to login user ${email}`)
         
         // Find the user by email
@@ -25,10 +27,12 @@ router.post("/login", async (req, res) => {
             return res.status(401).json({ message: "Invalid password" });
         }
         
-        // JWT token here for authentication
+        // Generate JWT token
+        const token = auth.generateToken(user._id);
         
         res.json({ 
             message: "Login successful!",
+            token,
             user: {
                 id: user._id,
                 email: user.email,
@@ -68,9 +72,13 @@ router.post("/register", async (req, res) => {
         
         // Save the user to the database
         await newUser.save();
-        
+
+        // Generate JWT token
+        const token = auth.generateToken(newUser._id);
+
         res.status(201).json({ 
             message: "User registered successfully",
+            token,
             user: {
                 id: newUser._id,
                 username: newUser.username,

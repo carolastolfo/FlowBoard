@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv"
 import fetch_router from "./routers/fetch_router.js";
 import user_router from "./routers/user_router.js"
+import board_router from "./routers/board_router.js"
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(cors());
 // routes
 app.use("/fetch", fetch_router);
 app.use("/user", user_router)
+app.use("/board", board_router)
 
 app.get("/", (req, res) => {
   res.send("Welcome to the server");

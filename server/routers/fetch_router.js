@@ -111,53 +111,6 @@ router.put("/join-requests/:requestId/accept", (req, res) => {
     res.json({ message: "User added to the board", board })
 });
 
-// login
-router.post("/login", (req, res) => {
-    const { username, password } = req.body;
-
-    console.log("Received:", { username, password });
-
-    // Find user in the dummy data
-    const user = data.users.find(u => u.username === username && u.password === password);
-
-    if (user) {
-        // If match is found, send success message in JSON format
-        res.json({ message: "Login successful!" });
-    } else {
-        // If no match is found, send error message in JSON format
-        res.status(401).json({ message: "Invalid username or password" });
-    }
-})
-
-// registration
-
-router.post("/register", (req, res) => {
-    const { username, email, password } = req.body;
-
-    console.log(`Received user: ${username}, ${email}, ${password}`)
-
-    // Check if the username or email already exists
-    const existingUser = data.users.find(
-        (user) => user.username === username || user.email === email
-    );
-    if (existingUser) {
-        return res.status(400).json({ message: "Username or email already exists." });
-    }
-
-    // Create new user object and add it to the "database"
-    const newUser = {
-        id: data.users.length + 1,
-        username,
-        email,
-        password, // Save plain text password - hash it later?
-        role: "user", // Default role
-    };
-    data.users.push(newUser); // Add the new user
-
-    // Send success response
-    res.status(201).json({ message: "User registered successfully" });
-});
-
 // Route to Fetch Tasks
 router.get("/task", (req, res) => {
     // console.log("Sending tasks:", tasks);

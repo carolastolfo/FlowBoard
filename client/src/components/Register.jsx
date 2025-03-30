@@ -16,7 +16,7 @@ const Register = () => {
     setMessage(""); // Clear previous message
 
     try {
-      const response = await fetch("http://localhost:8000/fetch/register", {
+      const response = await fetch("http://localhost:8000/user/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -33,7 +33,7 @@ const Register = () => {
 
         // Redirect to boards page after successful registration
         setTimeout(() => {
-          navigate("/boards"); // Redirect user and maybe later pass on user id as param /${data.userId}
+          navigate("/login"); // Redirect user and maybe later pass on user id as param /${data.userId}
         }, 1000); // Delay for UX
 
       } else {

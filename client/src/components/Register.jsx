@@ -33,7 +33,7 @@ const Register = () => {
 
         // Redirect to boards page after successful registration
         setTimeout(() => {
-          navigate("/boards"); // Redirect user and maybe later pass on user id as param /${data.userId}
+          navigate("/login"); // Redirect user and maybe later pass on user id as param /${data.userId}
         }, 1000); // Delay for UX
 
       } else {

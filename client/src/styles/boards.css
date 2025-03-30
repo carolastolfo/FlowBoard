@@ -98,4 +98,55 @@
     text-align: center;
     margin-top: 20px;
   }
-  
+  /* Create Board Form */
+.create-board-container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+.create-board-container h2 {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.board-input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  outline: none;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.color-picker {
+  border: none;
+  width: 50px;
+  height: 40px;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+
+.create-board-button {
+  padding: 10px 15px;
+  border: none;
+  background-color: #28a745;
+  color: white;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.create-board-button:hover {
+  background-color: #218838;
+}
+
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 10px;
+}

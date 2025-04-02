@@ -1,6 +1,8 @@
 import express from "express";
 import { data } from "./data.js";
 import { tasks } from "./data.js";
+import User from "../models/user.js";
+import Board from "../models/board.js";
 
 const router = express.Router();
 
@@ -34,21 +36,21 @@ router.put("/updateTaskColumn/:taskId", (req, res) => {
     res.json({ message: "Task moved successfully", tasks });
 });
 
-// Search boards by ID 
-router.get("/board/:boardId", (req, res) => {
-    const boardId = parseInt(req.params.boardId)
-    const board = data.boards.find(b => b.id === boardId)
+// Search boards by Name
+router.get("/board/:boardName", async (req, res) => {
+    console.log('search a board')
+    const boardName = req.params.boardName;
+    const board = await Board.findOne({ name: { $regex: boardName, $options: "i" } }); // case insensitive
 
     if (!board) {
         return res.status(404).json({ message: "Board not found" })
     }
-    console.log('search a board')
     res.json(board)
 });
 
-// Request to join team board by ID  
+// Request to join team board -> client side join button
 router.post("/boards/:boardId/join", (req, res) => {
-    // ? make it undefined instead of rasing an error
+    // ? makes it undefined instead of rasing an error
     const userId = req.user?.id; // Get user id from authentication. Test available after authentication part completed
     const boardId = parseInt(req.params.boardId)
 

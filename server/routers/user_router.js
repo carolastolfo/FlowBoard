@@ -86,6 +86,7 @@ router.post("/register", async (req, res) => {
                 role: newUser.role
             }
         });
+        console.log("User registered")
     } catch (error) {
         console.error("Registration error:", error);
         

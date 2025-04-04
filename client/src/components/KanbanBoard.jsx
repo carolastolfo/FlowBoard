@@ -3,7 +3,7 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import Column from './Column';
 import '../styles/KanbanBoardStyles.css';
 
-// Last version OK
+// Last version OK OK
 // Represents the entire board with multiple columns
 const KanbanBoard = () => {
   const [tasks, setTasks] = useState({});
@@ -34,7 +34,7 @@ const KanbanBoard = () => {
       const response = await fetch(`http://localhost:8000/fetch/task`);
       const data = await response.json();
 
-      setTasks(data);
+      setTasks(data[0].tasks);
     } catch (error) {
       console.error('Error fetching tasks:', error);
     }
@@ -253,7 +253,7 @@ const KanbanBoard = () => {
     if (!newColumnName.trim()) return;
 
     try {
-      // 🔥 Fetch new column from backend (fetchAddColumn already handles state updates)
+      // Fetch new column from backend (fetchAddColumn already handles state updates)
       await fetchAddColumn(newColumnName, setTasks, setColumnOrder);
 
       setNewColumnName('');
@@ -268,55 +268,6 @@ const KanbanBoard = () => {
       console.error('Error adding column:', error);
     }
   };
-
-  // Function to handle drag-and-drop task movement
-  // const onDragEnd = ({ source, destination, type }) => {
-  //   if (!destination) return;
-
-  //   if (type === 'COLUMN') {
-  //     const newOrder = [...columnOrder];
-  //     const [movedColumn] = newOrder.splice(source.index, 1);
-  //     newOrder.splice(destination.index, 0, movedColumn);
-  //     setColumnOrder(newOrder);
-  //   } else {
-  //     setTasks((prev) => {
-  //       const fromColumnId = source.droppableId;
-  //       const toColumnId = destination.droppableId;
-
-  //       const sourceTasks = [...prev[source.droppableId].items];
-  //       const destinationTasks =
-  //         source.droppableId === destination.droppableId
-  //           ? sourceTasks
-  //           : [...prev[destination.droppableId].items];
-
-  //       const [movedTask] = sourceTasks.splice(source.index, 1);
-  //       destinationTasks.splice(destination.index, 0, movedTask);
-
-  //       if (!movedTask || !movedTask.id) {
-  //         console.error(
-  //           'Error: No se encontró el taskId en la columna de origen.'
-  //         );
-  //         return prev;
-  //       }
-
-  //       fetchUpdateTaskColumn(movedTask.id, fromColumnId, toColumnId);
-
-  //       return {
-  //         ...prev,
-  //         [source.droppableId]: {
-  //           ...prev[source.droppableId],
-  //           items: sourceTasks,
-  //         },
-  //         ...(source.droppableId !== destination.droppableId && {
-  //           [destination.droppableId]: {
-  //             ...prev[destination.droppableId],
-  //             items: destinationTasks,
-  //           },
-  //         }),
-  //       };
-  //     });
-  //   }
-  // };
 
   const onDragEnd = async ({ source, destination, type }) => {
     if (!destination) return;

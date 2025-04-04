@@ -113,9 +113,9 @@ router.put("/join-requests/:requestId/accept", (req, res) => {
 
 // Route to Fetch Tasks
 router.get("/task", (req, res) => {
-    // console.log("Sending tasks:", tasks);
-    console.log("Sending tasks:", JSON.stringify(tasks))
-    res.json(tasks);
+    Task.find().then((tasks) => {
+        res.json(tasks);
+    });
 });
 
 // Route to Add a Task
@@ -126,74 +126,138 @@ router.post("/addtask", (req, res) => {
         return res.status(400).json({ message: "Task content cannot be empty" });
     }
 
-    if (!tasks[columnId]) {
-        return res.status(404).json({ message: "Column not found" });
-    }
+    Task.findOne()
+        .then((taskDocument) => {
+            if (!taskDocument) {
+                return res.status(404).json({ message: "No tasks found in the database" });
+            }
 
-    const newTask = {
-        id: Date.now().toString(),
-        content,
-        columnId,
-        completed: false
-    };
+            if (!taskDocument.tasks.has(columnId)) {
+                return res.status(404).json({ message: "Column not found" });
+            }
 
-    tasks[columnId].items.push(newTask);
+            let taskStatus = "To Do";
+            if (columnId === "col-2") {
+                taskStatus = "Doing";
+            } else if (columnId === "col-3") {
+                taskStatus = "Done";
+            }
 
-    console.log("Task added:", newTask);
+            const newTask = {
+                id: Date.now().toString(),
+                content,
+                status: taskStatus,
+                due_date: null,
+            };
 
-    res.status(201).json({ message: "Task added successfully", task: newTask, tasks });
+            taskDocument.tasks.get(columnId).items.push(newTask);
+
+            taskDocument.save()
+                .then(() => {
+                    console.log("Task added:", newTask);
+
+                    res.status(201).json({
+                        message: "Task added successfully",
+                        task: newTask,
+                        tasks: taskDocument.tasks,
+                    });
+                })
+                .catch((error) => {
+                    console.error(error);
+                    res.status(500).json({ message: "Server error", error: error.message });
+                });
+        })
+        .catch((error) => {
+            console.error(error);
+            res.status(500).json({ message: "Server error", error: error.message });
+        });
 });
 
 // Route to Delete a Task
 router.delete("/deletetask/:columnId/:taskId", (req, res) => {
     const { columnId, taskId } = req.params;
 
-    if (!tasks[columnId]) {
-        return res.status(404).json({ message: "Column not found" });
-    }
+    Task.findOne()
+        .then((taskDocument) => {
+            if (!taskDocument) {
+                return res.status(404).json({ message: "No tasks found in the database" });
+            }
 
-    const taskIndex = tasks[columnId].items.findIndex(task => task.id === taskId);
+            if (!taskDocument.tasks.has(columnId)) {
+                return res.status(404).json({ message: "Column not found" });
+            }
 
-    if (taskIndex === -1) {
-        return res.status(404).json({ message: "Task not found" });
-    }
+            const column = taskDocument.tasks.get(columnId);
+            const taskIndex = column.items.findIndex(task => task.id === taskId);
 
-    // Remove the task
-    tasks[columnId].items.splice(taskIndex, 1);
+            if (taskIndex === -1) {
+                return res.status(404).json({ message: "Task not found" });
+            }
 
-    console.log(`Task ${taskId} deleted from column ${columnId}`);
+            column.items.splice(taskIndex, 1);
 
-    res.json({ message: "Task deleted successfully", tasks });
+            taskDocument.save()
+                .then(() => {
+                    console.log(`Task ${taskId} deleted from column ${columnId}`);
+                    res.json({ message: "Task deleted successfully", tasks: taskDocument.tasks });
+                })
+                .catch((error) => {
+                    console.error(error);
+                    res.status(500).json({ message: "Server error", error: error.message });
+                });
+        })
+        .catch((error) => {
+            console.error(error);
+            res.status(500).json({ message: "Server error", error: error.message });
+        });
 });
 
 // Route to edit a Task
-router.put("/edittask", (req, res) => {
+router.put("/edittask", async (req, res) => {
     const { columnId, taskId, content, completed, status } = req.body;
 
-    if (!columnId || !taskId || !content || status === undefined || completed === undefined) {
+    // Check for missing parameters
+    if (!columnId || !taskId || !content || status === undefined) {
         return res.status(400).json({ message: "Missing columnId, taskId, content, or completed status" });
     }
 
-    if (!tasks[columnId]) {
-        return res.status(404).json({ message: "Column not found" });
-    }
+    try {
+        // Find the task document in the database
+        const taskDocument = await Task.findOne();
 
-    let taskFound = false;
-    tasks[columnId].items = tasks[columnId].items.map((task) => {
-        if (task.id === taskId) {
-            taskFound = true;
-            return { ...task, content, completed, status };
+        if (!taskDocument || !taskDocument.tasks.has(columnId)) {
+            return res.status(404).json({ message: "Column not found" });
         }
-        return task;
-    });
 
-    if (!taskFound) {
-        return res.status(404).json({ message: "Task not found" });
+        const column = taskDocument.tasks.get(columnId);
+
+        // Find the task in the column's items
+        let taskFound = false;
+        column.items = column.items.map((task) => {
+            if (task.id === taskId) {
+                taskFound = true;
+                // Update the task properties
+                task.content = content;
+                task.completed = completed;
+                task.status = status;
+            }
+            return task;
+        });
+
+        if (!taskFound) {
+            return res.status(404).json({ message: "Task not found" });
+        }
+
+        // Save the updated task document back to the database
+        await taskDocument.save();
+
+        console.log(`Task ${taskId} in column ${columnId} updated to "${content}" with completed: ${completed}`);
+
+        res.json({ message: "Task updated successfully", tasks: taskDocument.tasks });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Internal Server Error" });
     }
-
-    console.log(`Task ${taskId} in column ${columnId} updated to "${content}" with completed: ${completed}`);
-
-    res.json({ message: "Task updated successfully", tasks });
 });
 
 // Route to add a new column
@@ -204,18 +268,40 @@ router.post("/addcolumn", (req, res) => {
         return res.status(400).json({ message: "Column name is required" });
     }
 
-    const existingColumnIds = Object.keys(tasks)
-        .map(id => parseInt(id.replace("col-", ""), 10))
-        .filter(num => !isNaN(num));
+    // Find the task document
+    Task.findOne()
+        .then((task) => {
+            // If no task document exists, create one
+            if (!task) {
+                task = new Task();
+            }
 
-    const maxId = existingColumnIds.length > 0 ? Math.max(...existingColumnIds) : 0;
-    const newColumnId = `col-${(maxId + 1).toString()}`;
+            // Generate new column ID
+            const existingColumnIds = Array.from(task.tasks.keys())
+                .map(id => parseInt(id.replace("col-", ""), 10))
+                .filter(num => !isNaN(num));
 
-    tasks[newColumnId] = { title: columnName, items: [] };
+            const maxId = existingColumnIds.length > 0 ? Math.max(...existingColumnIds) : 0;
+            const newColumnId = `col-${maxId + 1}`;
 
-    console.log(`New column added: ${columnName} (ID: ${newColumnId})`);
+            // Add new column
+            task.tasks.set(newColumnId, { title: columnName, items: [] });
 
-    res.status(201).json({ message: "Column added", tasks });
+            // Save the updated task document
+            task.save()
+                .then(() => {
+                    console.log(`New column added: ${columnName} (ID: ${newColumnId})`);
+                    res.status(201).json({ message: "Column added", tasks: task.tasks });
+                })
+                .catch((error) => {
+                    console.error(error);
+                    res.status(500).json({ message: "Error saving updated task", error: error.message });
+                });
+        })
+        .catch((error) => {
+            console.error(error);
+            res.status(500).json({ message: "Error retrieving tasks from the database", error: error.message });
+        });
 });
 
 // Route to delete a column
@@ -224,15 +310,36 @@ router.delete("/deletecolumn/:columnId", (req, res) => {
 
     console.log("Received delete column request:", columnId);
 
-    if (!tasks[columnId]) {
-        return res.status(400).json({ message: "Invalid column ID" });
-    }
+    // Find the task document
+    Task.findOne()
+        .then((task) => {
+            if (!task) {
+                return res.status(404).json({ message: "Tasks not found in the database" });
+            }
 
-    delete tasks[columnId];
+            // Check if the column exists
+            if (!task.tasks.has(columnId)) {
+                return res.status(400).json({ message: "Invalid column ID" });
+            }
 
-    console.log(`Column ${columnId} deleted successfully`);
+            // Remove the column from the Map
+            task.tasks.delete(columnId);
 
-    res.json({ message: "Column deleted", tasks });
+            // Save the updated task document
+            task.save()
+                .then(() => {
+                    console.log(`Column ${columnId} deleted successfully`);
+                    res.json({ message: "Column deleted", tasks: task.tasks });
+                })
+                .catch((error) => {
+                    console.error(error);
+                    res.status(500).json({ message: "Error saving updated task", error: error.message });
+                });
+        })
+        .catch((error) => {
+            console.error(error);
+            res.status(500).json({ message: "Error retrieving tasks from the database", error: error.message });
+        });
 });
 
 export default router;

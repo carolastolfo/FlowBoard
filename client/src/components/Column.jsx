@@ -73,16 +73,20 @@ const Column = ({
       <Droppable droppableId={id}>
         {(provided) => (
           <div ref={provided.innerRef} {...provided.droppableProps}>
-            {tasks.map((task, index) => (
-              <Task
-                key={task.id}
-                task={task}
-                index={index}
-                columnId={id}
-                deleteTask={deleteTask}
-                editTask={editTask}
-              />
-            ))}
+            {tasks.length > 0 ? (
+              tasks.map((task, index) => (
+                <Task
+                  key={task.id}
+                  task={task}
+                  index={index}
+                  columnId={id}
+                  deleteTask={deleteTask}
+                  editTask={editTask}
+                />
+              ))
+            ) : (
+              <p>No taks available at the moment.</p>
+            )}
             {provided.placeholder}
           </div>
         )}

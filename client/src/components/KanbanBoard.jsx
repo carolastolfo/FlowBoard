@@ -3,8 +3,6 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import Column from './Column';
 import '../styles/KanbanBoardStyles.css';
 
-console.log(import.meta.env.VITE_SERVER_URL)
-
 // Last version OK OK
 // Represents the entire board with multiple columns
 const KanbanBoard = () => {
@@ -102,7 +100,6 @@ const KanbanBoard = () => {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to move task');
       }
-
       const data = await response.json();
 
       console.log('Task moved successfully', data);
@@ -129,7 +126,7 @@ const KanbanBoard = () => {
           status: updatedTask.status,
         }),
       });
-
+      
       if (!response.ok) {
         console.error('Failed to edit task:', await response.json());
         return;

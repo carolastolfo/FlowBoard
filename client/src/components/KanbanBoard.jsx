@@ -31,7 +31,7 @@ const KanbanBoard = () => {
   const fetchTask = async () => {
     console.log('Fetching tasks...');
     try {
-      const response = await fetch(`http://localhost:8000/fetch/task`);
+      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/fetch/task`);
       const data = await response.json();
 
       setTasks(data[0].tasks);
@@ -45,7 +45,7 @@ const KanbanBoard = () => {
     if (!content.trim()) return;
 
     try {
-      const response = await fetch('http://localhost:8000/fetch/addtask', {
+      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/fetch/addtask`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ columnId, content }),
@@ -67,7 +67,7 @@ const KanbanBoard = () => {
   const fetchDeleteTask = async (columnId, taskId, setTasks) => {
     try {
       const response = await fetch(
-        `http://localhost:8000/fetch/deletetask/${columnId}/${taskId}`,
+        `${import.meta.env.VITE_SERVER_URL}/fetch/deletetask/${columnId}/${taskId}`,
         {
           method: 'DELETE',
         }
@@ -88,7 +88,7 @@ const KanbanBoard = () => {
   const fetchUpdateTaskColumn = async (taskId, fromColumnId, toColumnId) => {
     try {
       const response = await fetch(
-        `http://localhost:8000/fetch/updateTaskColumn/${taskId}`,
+        `${import.meta.env.VITE_SERVER_URL}/fetch/updateTaskColumn/${taskId}`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -100,7 +100,6 @@ const KanbanBoard = () => {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to move task');
       }
-
       const data = await response.json();
 
       console.log('Task moved successfully', data);
@@ -116,7 +115,7 @@ const KanbanBoard = () => {
   // Function to fetch edit task
   const fetchEditTask = async (columnId, taskId, updatedTask, setTasks) => {
     try {
-      const response = await fetch(`http://localhost:8000/fetch/edittask`, {
+      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/fetch/edittask`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -127,7 +126,7 @@ const KanbanBoard = () => {
           status: updatedTask.status,
         }),
       });
-
+      
       if (!response.ok) {
         console.error('Failed to edit task:', await response.json());
         return;
@@ -145,7 +144,7 @@ const KanbanBoard = () => {
   // Function to fetch add a column
   const fetchAddColumn = async (columnName, setTasks, setColumnOrder) => {
     try {
-      const response = await fetch(`http://localhost:8000/fetch/addcolumn`, {
+      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/fetch/addcolumn`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ columnName }),
@@ -171,7 +170,7 @@ const KanbanBoard = () => {
   const fetchDeleteColumn = async (columnId, setTasks, setColumnOrder) => {
     try {
       const response = await fetch(
-        `http://localhost:8000/fetch/deletecolumn/${columnId}`,
+        `${import.meta.env.VITE_SERVER_URL}/fetch/deletecolumn/${columnId}`,
         {
           method: 'DELETE',
         }

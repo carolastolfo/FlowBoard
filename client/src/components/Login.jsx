@@ -7,6 +7,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState(""); // Message state to display response or error
   const navigate = useNavigate(); // Initialize navigate
+  console.log(import.meta.env.VITE_SERVER_URL)
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -14,7 +15,7 @@ const Login = () => {
     setMessage(""); // Clear any previous messages
 
     try {
-      const response = await fetch("http://localhost:8000/user/login", {
+      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/user/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(submission),

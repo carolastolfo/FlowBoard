@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import ListMenu from './ListMenu';
+console.log(import.meta.env.VITE_SERVER_URL)
 
 // Represents a single column in the Kanban board
 const Column = ({

@@ -3,12 +3,14 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import Column from './Column';
 import '../styles/KanbanBoardStyles.css';
 
+console.log(import.meta.env.VITE_SERVER_URL)
+
 // Last version OK
 // Function to fetch task
 const fetchTask = async (setTasks) => {
   console.log('Fetching tasks...');
   try {
-    const response = await fetch(`http://localhost:8000/fetch/task`);
+    const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/fetch/task`);
     const data = await response.json();
 
     setTasks(data);
@@ -22,7 +24,7 @@ const fetchAddTask = async (columnId, content, setTasks) => {
   if (!content.trim()) return;
 
   try {
-    const response = await fetch('http://localhost:8000/fetch/addtask', {
+    const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/fetch/addtask`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ columnId, content }),
@@ -44,7 +46,7 @@ const fetchAddTask = async (columnId, content, setTasks) => {
 const fetchDeleteTask = async (columnId, taskId, setTasks) => {
   try {
     const response = await fetch(
-      `http://localhost:8000/fetch/deletetask/${columnId}/${taskId}`,
+      `${import.meta.env.VITE_SERVER_URL}/fetch/deletetask/${columnId}/${taskId}`,
       {
         method: 'DELETE',
       }
@@ -65,7 +67,7 @@ const fetchDeleteTask = async (columnId, taskId, setTasks) => {
 const fetchUpdateTaskColumn = async (taskId, fromColumnId, toColumnId) => {
   try {
     const response = await fetch(
-      `http://localhost:8000/fetch/updateTaskColumn/${taskId}`,
+      `${import.meta.env.VITE_SERVER_URL}/fetch/updateTaskColumn/${taskId}`,
       {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -88,7 +90,7 @@ const fetchUpdateTaskColumn = async (taskId, fromColumnId, toColumnId) => {
 // Function to fetch edit task
 const fetchEditTask = async (columnId, taskId, updatedTask, setTasks) => {
   try {
-    const response = await fetch(`http://localhost:8000/fetch/edittask`, {
+    const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/fetch/edittask`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -117,7 +119,7 @@ const fetchEditTask = async (columnId, taskId, updatedTask, setTasks) => {
 // Function to fetch add a column
 const fetchAddColumn = async (columnName, setTasks, setColumnOrder) => {
   try {
-    const response = await fetch(`http://localhost:8000/fetch/addcolumn`, {
+    const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/fetch/addcolumn`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ columnName }),
@@ -143,7 +145,7 @@ const fetchAddColumn = async (columnName, setTasks, setColumnOrder) => {
 const fetchDeleteColumn = async (columnId, setTasks, setColumnOrder) => {
   try {
     const response = await fetch(
-      `http://localhost:8000/fetch/deletecolumn/${columnId}`,
+      `${import.meta.env.VITE_SERVER_URL}/fetch/deletecolumn/${columnId}`,
       {
         method: 'DELETE',
       }

@@ -11,12 +11,13 @@ const Boards = ({ userId }) => {
   const [backgroundColor, setBackgroundColor] = useState("");
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
+  console.log(import.meta.env.VITE_SERVER_URL)
 
   useEffect(() => {
     // fetch boards
     const fetchBoards = async () => {
       try {
-        const response = await fetch("http://localhost:8000/board", {
+        const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/board`, {
           method: "GET",
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -40,7 +41,7 @@ const Boards = ({ userId }) => {
     }
 
     try {
-      const response = await fetch("http://localhost:8000/board", {
+      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/board`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -68,7 +69,7 @@ const Boards = ({ userId }) => {
 
     try {
       const response = await fetch(
-        `http://localhost:8000/fetch/board/${searchId}`
+        `${import.meta.env.VITE_SERVER_URL}/board/${searchId}`
       );
       if (!response.ok) {
         throw new Error("Board not found");

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../styles/boards.css";
 
 const Boards = ({ userId }) => {
-  const [searchId, setSearchId] = useState("");
+  const [searchName, setSearchName] = useState("");
   const [boards, setBoards] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -62,14 +62,14 @@ const Boards = ({ userId }) => {
   };
 
   const handleSearch = async () => {
-    if (!searchId) {
-      setError("Please enter a Board ID");
+    if (!searchName) {
+      setError("Please enter a Board Name");
       return;
     }
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_SERVER_URL}/board/${searchId}`
+        `${import.meta.env.VITE_SERVER_URL}/board/${searchName}`
       );
       if (!response.ok) {
         throw new Error("Board not found");
@@ -102,10 +102,10 @@ const Boards = ({ userId }) => {
         <h1>Your Boards</h1>
         <div className="search-container">
           <input
-            placeholder="Search by Board ID"
+            placeholder="Search by Board Name"
             className="search-input"
-            value={searchId}
-            onChange={(e) => setSearchId(e.target.value)}
+            value={searchName}
+            onChange={(e) => setSearchName(e.target.value)}
           />
           <button onClick={handleSearch} className="search-button">
             Search

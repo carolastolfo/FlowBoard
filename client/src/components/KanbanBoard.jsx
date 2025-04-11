@@ -3,168 +3,7 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import Column from './Column';
 import '../styles/KanbanBoardStyles.css';
 
-console.log(import.meta.env.VITE_SERVER_URL)
-
-// Last version OK
-// Function to fetch task
-const fetchTask = async (setTasks) => {
-  console.log('Fetching tasks...');
-  try {
-    const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/fetch/task`);
-    const data = await response.json();
-
-    setTasks(data);
-  } catch (error) {
-    console.error('Error fetching tasks:', error);
-  }
-};
-
-// Function to fecth add a task
-const fetchAddTask = async (columnId, content, setTasks) => {
-  if (!content.trim()) return;
-
-  try {
-    const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/fetch/addtask`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ columnId, content }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to add task');
-    }
-
-    const data = await response.json();
-
-    setTasks(data.tasks); // Update state with new task list
-  } catch (error) {
-    console.error('Error adding task:', error);
-  }
-};
-
-// Function to fetch delete task
-const fetchDeleteTask = async (columnId, taskId, setTasks) => {
-  try {
-    const response = await fetch(
-      `${import.meta.env.VITE_SERVER_URL}/fetch/deletetask/${columnId}/${taskId}`,
-      {
-        method: 'DELETE',
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error('Failed to delete task');
-    }
-
-    const data = await response.json();
-    setTasks(data.tasks); // Update state with the new tasks list
-  } catch (error) {
-    console.error('Error deleting task:', error);
-  }
-};
-
-// Function to fetch update task column
-const fetchUpdateTaskColumn = async (taskId, fromColumnId, toColumnId) => {
-  try {
-    const response = await fetch(
-      `${import.meta.env.VITE_SERVER_URL}/fetch/updateTaskColumn/${taskId}`,
-      {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fromColumnId, toColumnId }),
-      }
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Failed to move task:', errorData);
-      return;
-    }
-
-    console.log(`Task ${taskId} moved from ${fromColumnId} to ${toColumnId}`);
-  } catch (error) {
-    console.error('Error updating task column:', error);
-  }
-};
-
-// Function to fetch edit task
-const fetchEditTask = async (columnId, taskId, updatedTask, setTasks) => {
-  try {
-    const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/fetch/edittask`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        columnId,
-        taskId,
-        content: updatedTask.content,
-        completed: updatedTask.completed,
-        status: updatedTask.status,
-      }),
-    });
-
-    if (!response.ok) {
-      console.error('Failed to edit task:', await response.json());
-      return;
-    }
-
-    const data = await response.json();
-    console.log('Server response:', data.tasks);
-
-    setTasks(data.tasks);
-  } catch (error) {
-    console.error('Error editing task:', error);
-  }
-};
-
-// Function to fetch add a column
-const fetchAddColumn = async (columnName, setTasks, setColumnOrder) => {
-  try {
-    const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/fetch/addcolumn`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ columnName }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Failed to add column:', errorData);
-      return;
-    }
-
-    const data = await response.json();
-    console.log('Updated tasks after adding a column:', data.tasks);
-
-    setTasks(data.tasks);
-    setColumnOrder(Object.keys(data.tasks));
-  } catch (error) {
-    console.error('Error adding column:', error);
-  }
-};
-
-// Function to fetch delete a column
-const fetchDeleteColumn = async (columnId, setTasks, setColumnOrder) => {
-  try {
-    const response = await fetch(
-      `${import.meta.env.VITE_SERVER_URL}/fetch/deletecolumn/${columnId}`,
-      {
-        method: 'DELETE',
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error('Failed to delete column');
-    }
-
-    const data = await response.json();
-    console.log('Updated tasks after deleting column:', data.tasks);
-
-    setTasks(data.tasks); // Update state with new tasks list
-    setColumnOrder((prev) => prev.filter((id) => id !== columnId)); // Remove from column order
-  } catch (error) {
-    console.error('Error deleting column:', error);
-  }
-};
-
+// Last version OK OK
 // Represents the entire board with multiple columns
 const KanbanBoard = () => {
   const [tasks, setTasks] = useState({});
@@ -187,6 +26,169 @@ const KanbanBoard = () => {
         boardRef.current.scrollWidth / 2 - boardRef.current.clientWidth / 2;
     }
   }, [tasks]);
+
+  // Function to fetch task
+  const fetchTask = async () => {
+    console.log('Fetching tasks...');
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/fetch/task`);
+      const data = await response.json();
+
+      setTasks(data[0].tasks);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    }
+  };
+
+  // Function to fecth add a task
+  const fetchAddTask = async (columnId, content, setTasks) => {
+    if (!content.trim()) return;
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/fetch/addtask`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ columnId, content }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add task');
+      }
+
+      const data = await response.json();
+
+      setTasks(data.tasks); // Update state with new task list
+    } catch (error) {
+      console.error('Error adding task:', error);
+    }
+  };
+
+  // Function to fetch delete task
+  const fetchDeleteTask = async (columnId, taskId, setTasks) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SERVER_URL}/fetch/deletetask/${columnId}/${taskId}`,
+        {
+          method: 'DELETE',
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to delete task');
+      }
+
+      const data = await response.json();
+      setTasks(data.tasks); // Update state with the new tasks list
+    } catch (error) {
+      console.error('Error deleting task:', error);
+    }
+  };
+
+  // Function to fetch update task column
+  const fetchUpdateTaskColumn = async (taskId, fromColumnId, toColumnId) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SERVER_URL}/fetch/updateTaskColumn/${taskId}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fromColumnId, toColumnId }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to move task');
+      }
+      const data = await response.json();
+
+      console.log('Task moved successfully', data);
+
+      console.log(`Task ${taskId} moved from ${fromColumnId} to ${toColumnId}`);
+
+      setTasks(data.tasks);
+    } catch (error) {
+      console.error('Error updating task column:', error);
+    }
+  };
+
+  // Function to fetch edit task
+  const fetchEditTask = async (columnId, taskId, updatedTask, setTasks) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/fetch/edittask`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          columnId,
+          taskId,
+          content: updatedTask.content,
+          completed: updatedTask.completed,
+          status: updatedTask.status,
+        }),
+      });
+      
+      if (!response.ok) {
+        console.error('Failed to edit task:', await response.json());
+        return;
+      }
+
+      const data = await response.json();
+      console.log('Server response:', data.tasks);
+
+      setTasks(data.tasks);
+    } catch (error) {
+      console.error('Error editing task:', error);
+    }
+  };
+
+  // Function to fetch add a column
+  const fetchAddColumn = async (columnName, setTasks, setColumnOrder) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/fetch/addcolumn`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ columnName }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Failed to add column:', errorData);
+        return;
+      }
+
+      const data = await response.json();
+      console.log('Updated tasks after adding a column:', data.tasks);
+
+      setTasks(data.tasks);
+      setColumnOrder(Object.keys(data.tasks));
+    } catch (error) {
+      console.error('Error adding column:', error);
+    }
+  };
+
+  // Function to fetch delete a column
+  const fetchDeleteColumn = async (columnId, setTasks, setColumnOrder) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SERVER_URL}/fetch/deletecolumn/${columnId}`,
+        {
+          method: 'DELETE',
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to delete column');
+      }
+
+      const data = await response.json();
+      console.log('Updated tasks after deleting column:', data.tasks);
+
+      setTasks(data.tasks); // Update state with new tasks list
+      setColumnOrder((prev) => prev.filter((id) => id !== columnId)); // Remove from column order
+    } catch (error) {
+      console.error('Error deleting column:', error);
+    }
+  };
 
   // Function to add a task to a specific column
   const addTask = (columnId, content) => {
@@ -250,7 +252,7 @@ const KanbanBoard = () => {
     if (!newColumnName.trim()) return;
 
     try {
-      // 🔥 Fetch new column from backend (fetchAddColumn already handles state updates)
+      // Fetch new column from backend (fetchAddColumn already handles state updates)
       await fetchAddColumn(newColumnName, setTasks, setColumnOrder);
 
       setNewColumnName('');
@@ -266,8 +268,7 @@ const KanbanBoard = () => {
     }
   };
 
-  // Function to handle drag-and-drop task movement
-  const onDragEnd = ({ source, destination, type }) => {
+  const onDragEnd = async ({ source, destination, type }) => {
     if (!destination) return;
 
     if (type === 'COLUMN') {
@@ -276,42 +277,39 @@ const KanbanBoard = () => {
       newOrder.splice(destination.index, 0, movedColumn);
       setColumnOrder(newOrder);
     } else {
-      setTasks((prev) => {
-        const fromColumnId = source.droppableId;
-        const toColumnId = destination.droppableId;
+      const fromColumnId = source.droppableId;
+      const toColumnId = destination.droppableId;
 
-        const sourceTasks = [...prev[source.droppableId].items];
-        const destinationTasks =
-          source.droppableId === destination.droppableId
-            ? sourceTasks
-            : [...prev[destination.droppableId].items];
+      const sourceTasks = [...tasks[fromColumnId].items];
+      const destinationTasks =
+        fromColumnId === toColumnId
+          ? sourceTasks
+          : [...tasks[toColumnId].items];
 
-        const [movedTask] = sourceTasks.splice(source.index, 1);
-        destinationTasks.splice(destination.index, 0, movedTask);
+      const [movedTask] = sourceTasks.splice(source.index, 1);
+      destinationTasks.splice(destination.index, 0, movedTask);
 
-        if (!movedTask || !movedTask.id) {
-          console.error(
-            'Error: No se encontró el taskId en la columna de origen.'
-          );
-          return prev;
-        }
+      if (!movedTask || !movedTask.id) {
+        console.error('Moved task or task ID not found.');
+        return;
+      }
 
-        fetchUpdateTaskColumn(movedTask.id, fromColumnId, toColumnId);
+      // Call the fetchUpdateTaskColumn function correctly
+      await fetchUpdateTaskColumn(movedTask.id, fromColumnId, toColumnId);
 
-        return {
-          ...prev,
-          [source.droppableId]: {
-            ...prev[source.droppableId],
-            items: sourceTasks,
+      setTasks((prev) => ({
+        ...prev,
+        [fromColumnId]: {
+          ...prev[fromColumnId],
+          items: sourceTasks,
+        },
+        ...(fromColumnId !== toColumnId && {
+          [toColumnId]: {
+            ...prev[toColumnId],
+            items: destinationTasks,
           },
-          ...(source.droppableId !== destination.droppableId && {
-            [destination.droppableId]: {
-              ...prev[destination.droppableId],
-              items: destinationTasks,
-            },
-          }),
-        };
-      });
+        }),
+      }));
     }
   };
 

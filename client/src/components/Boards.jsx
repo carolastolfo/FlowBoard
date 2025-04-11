@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/Boards.css";
+import "../styles/boards.css";
 
 const Boards = ({ userId }) => {
   const [searchId, setSearchId] = useState("");

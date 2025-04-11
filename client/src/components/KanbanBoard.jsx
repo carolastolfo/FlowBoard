@@ -13,7 +13,7 @@ const KanbanBoard = () => {
   const [activeMenuColumn, setActiveMenuColumn] = useState(null);
 
   useEffect(() => {
-    fetchTask(setTasks, setColumnOrder);
+    fetchTask(setTasks);
   }, []);
 
   useEffect(() => {

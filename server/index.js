@@ -33,6 +33,10 @@ app.use((req, res) => {
   res.send(`No request for ${req.url} exists`);
 });
 
+
+console.log('MongoDB URL:', process.env.MONGODB_URL);
+
+
 // Database connection
 mongoose
   .connect(process.env.MONGODB_URL)

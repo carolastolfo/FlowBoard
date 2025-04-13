@@ -13,7 +13,6 @@ const Task = ({ task, index, columnId, deleteTask, editTask }) => {
   const [newStatus, setNewStatus] = useState(task.status ?? '');
   const [dueDate, setDueDate] = useState(task.due_date ?? '');
   const [showDate, setShowDate] = useState(false);
-  console.log(import.meta.env.VITE_SERVER_URL)
 
   useEffect(() => {
     setNewContent(task.content);
@@ -25,7 +24,7 @@ const Task = ({ task, index, columnId, deleteTask, editTask }) => {
     if (e) e.preventDefault();
 
     if (newContent.trim()) {
-      editTask(columnId, task.id, {
+      editTask(columnId, task._id, {
         content: newContent,
         completed: task.completed,
         status: newStatus,
@@ -60,7 +59,7 @@ const Task = ({ task, index, columnId, deleteTask, editTask }) => {
   };
 
   return (
-    <Draggable draggableId={task.id} index={index}>
+    <Draggable draggableId={task._id} index={index}>
       {(provided) => (
         <div
           ref={provided.innerRef}
@@ -108,7 +107,7 @@ const Task = ({ task, index, columnId, deleteTask, editTask }) => {
 
             <button
               className='delete-btn'
-              onClick={() => deleteTask(columnId, task.id)}
+              onClick={() => deleteTask(columnId, task._id)}
               title='Delete Task'
             >
               <FontAwesomeIcon icon={faTrash} />

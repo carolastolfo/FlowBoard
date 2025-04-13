@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import ListMenu from './ListMenu';
-console.log(import.meta.env.VITE_SERVER_URL)
 
 // Represents a single column in the Kanban board
 const Column = ({
@@ -77,7 +76,7 @@ const Column = ({
             {tasks.length > 0 ? (
               tasks.map((task, index) => (
                 <Task
-                  key={task.id}
+                  key={task._id}
                   task={task}
                   index={index}
                   columnId={id}
@@ -86,7 +85,7 @@ const Column = ({
                 />
               ))
             ) : (
-              <p>No taks available at the moment.</p>
+              <p>No taks available in the column</p>
             )}
             {provided.placeholder}
           </div>

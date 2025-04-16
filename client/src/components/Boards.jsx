@@ -17,7 +17,7 @@ const Boards = ({ userId }) => {
     // fetch boards
     const fetchBoards = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/fetch/board`, {
+        const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/board`, {
           method: "GET",
           headers: { Authorization: `Bearer ${token}` },
         });

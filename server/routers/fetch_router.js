@@ -3,6 +3,8 @@ import { data } from "./data.js";
 import { tasks } from "./data.js";
 import User from "../models/user.js";
 import Board from "../models/board.js";
+import JoinRequest from "../models/joinRequest.js";
+import { verifyToken } from "../middleware/auth.js"; 
 
 const router = express.Router();
 
@@ -48,67 +50,135 @@ router.get("/board/:boardName", async (req, res) => {
     res.json(board)
 });
 
-// Request to join team board -> client side join button
-router.post("/boards/:boardId/join", (req, res) => {
-    // ? makes it undefined instead of rasing an error
-    const userId = req.user?.id; // Get user id from authentication. Test available after authentication part completed
-    const boardId = parseInt(req.params.boardId)
+// Request to join team board
+router.post("/boards/:boardId/join", verifyToken, async (req, res) => {
+    try {
+        const userId = req.userId;
+        const boardId = req.params.boardId;
 
-    if (!userId) {
-        return res.status(401).json({ message: "User not found" });
+        if (!userId) {
+            return res.status(401).json({ message: "User not found." });
+        }
+        
+        // Check if the board exists
+        const board = await Board.findById(boardId);
+        if (!board) {
+            return res.status(404).json({ message: "Board not found." });
+        }
+
+        // Check if the user is already a team member
+        if (board.teamMembers.includes(userId)) {
+            return res.status(400).json({ message: "User is already a member." });
+        }
+
+        // Check if a join request already exists
+        const existingRequest = await JoinRequest.findOne({ userId, boardId, status: "pending" });
+        if (existingRequest) {
+            return res.status(400).json({ message: "Join request already sent." });
+        }
+
+        // Create a new join request
+        const newRequest = new JoinRequest({
+            userId,
+            boardId,
+            status: "pending",
+        });
+
+        await newRequest.save();
+
+        res.status(201).json({
+            message: "Join request sent",
+            request: newRequest,
+        });
+    } catch (error) {
+        console.error("Join request error:", error);
+        res.status(500).json({ message: "Server error" });
     }
-
-    const board = data.boards.find(b => b.id === boardId)
-    if (!board) {
-        return res.status(404).json({ message: "Board not found" })
-    }
-
-    // Check if the user is already a member
-    if (board.team_members.includes(userId)) {
-        return res.status(400).json({ message: "User is already a member" })
-    }
-
-    // Create a join request
-    const newRequest = {
-        id: data.join_requests.length + 1,
-        user_id: userId,
-        board_id: boardId,
-        status: "pending",
-    }
-
-    data.join_requests.push(newRequest)
-    res.status(201).json({ message: "Join request sent", request: newRequest })
 });
 
 // Accept request from new team member  
-router.put("/join-requests/:requestId/accept", (req, res) => {
-    const requestId = parseInt(req.params.requestId)
-    const request = data.join_requests.find(r => r.id === requestId)
+router.put("/joinRequests/:requestId/accept", verifyToken, async (req, res) => {
+    try {
+        const requestId = req.params.requestId;
 
-    if (!request) {
-        return res.status(404).json({ message: "Join request not found" })
+        // Find the join request by ID
+        const request = await JoinRequest.findById(requestId);
+        if (!request) {
+            return res.status(404).json({ message: "Join request not found." });
+        }
+
+        // Find the board
+        const board = await Board.findById(request.boardId);
+        if (!board) {
+            return res.status(404).json({ message: "Board not found." });
+        }
+
+        // Check if the authenticated user is the board owner
+        if (req.userId !== board.ownerId.toString()) {
+            return res
+                .status(403)
+                .json({ message: "Only the board owner can accept requests." });
+        }
+
+        // Find the user who made the join request
+        const user = await User.findById(request.userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Add the board to user's boards if not already there
+        if (!user.boards.includes(board._id)) {
+            user.boards.push(board._id);
+            await user.save();
+        }
+
+        // Add the user to board's teamMembers if not already there
+        if (!board.teamMembers.includes(user._id)) {
+            board.teamMembers.push(user._id);
+            await board.save();
+        }
+
+        // Update the join request status to accepted
+        request.status = "accepted";
+        await request.save();
+
+        res.json({ message: "User added to the board", board });
+    } catch (error) {
+        console.error("Error accepting join request:", error);
+        res.status(500).json({ message: "Server error" });
     }
+});
 
-    const board = data.boards.find(b => b.id === request.board_id)
+// Reject request from new team member  
+router.put("/joinRequests/:requestId/reject", verifyToken, async (req, res) => {
+    try {
+        const requestId = req.params.requestId;
+        const request = await JoinRequest.findById(requestId);
+        if (!request) {
+            return res.status(404).json({ message: "Join request not found." });
+        }
 
-    // Check if the requester (authenticated user) is the board owner
-    if (req.user?.id !== board.owner_id) { // Test available after authentication part completed
-        return res.status(403).json({ message: "Only the board owner can accept requests" })
+        const board = await Board.findById(request.boardId);
+        if (!board) {
+            return res.status(404).json({ message: "Board not found." });
+        }
+
+        // Check if the authenticated user is the board owner
+        if (req.userId !== board.ownerId.toString()) {
+            return res
+                .status(403)
+                .json({ message: "Only the board owner can reject requests." });
+        }
+
+        // Update the join request status to rejected
+        request.status = "rejected";
+        await request.save();
+
+        res.json({ message: "Join request rejected", request });
+    } catch (error) {
+        console.error("Error rejecting join request:", error);
+        res.status(500).json({ message: "Server error" });
     }
-
-    // Find the user making the join request
-    const user = data.users.find(u => u.id === request.user_id)
-
-    // Add board ID to the user's boards
-    if (!user.boards.includes(board.id)) {
-        user.boards.push(board.id)
-    }
-
-    // Update the board and request status
-    board.team_members = board.team_members.length + 1
-    request.status = "accepted"
-
-    res.json({ message: "User added to the board", board })
 });
 
 // Route to Fetch Tasks

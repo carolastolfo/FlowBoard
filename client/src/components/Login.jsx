@@ -32,7 +32,7 @@ const Login = () => {
 
         // Redirect to boards page after successful login
         setTimeout(() => {
-          navigate("/boards"); // Redirect user to boards page
+          navigate("/boards", { state: { userId: data.user.id } }); // Redirect user to boards page
         }, 1000); // Delay for UX
       } else {
         setMessage(data.message);

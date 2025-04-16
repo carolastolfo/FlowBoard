@@ -207,9 +207,11 @@ const Boards = ({ state }) => {
           onChange={(e) => setBackgroundColor(e.target.value)}
           className="board-input"
         />
+        <div className="create-board-button-container">
         <button className="create-board-button" onClick={createBoard}>
           Create Board
         </button>
+        </div>
         {error && <p className="error-message">{error}</p>}
       </div>
     </div>

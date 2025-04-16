@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import '../styles/home.css';
-import todoImage from '../assets/to-do.jpg';
+import introGif from '../assets/intro.gif';
 
 const Homepage = () => {
 
@@ -34,7 +34,7 @@ const Homepage = () => {
           </div>
         </div>
         <div className='hero-item'>
-          <img src={todoImage} alt='To-do illustration' />
+          <img src={introGif} alt='To-do illustration' />
         </div>
       </main>
     </div>

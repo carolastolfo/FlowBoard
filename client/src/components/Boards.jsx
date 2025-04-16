@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import jwt_decode from "jwt-decode"; 
-import "../styles/Boards.css";
+import "../styles/boards.css";
 
 const Boards = ({ state }) => {
   const navigate = useNavigate();

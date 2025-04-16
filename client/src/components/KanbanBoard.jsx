@@ -114,8 +114,6 @@ const KanbanBoard = () => {
 
   // Function to fetch edit task
   const fetchEditTask = async (columnId, taskId, updatedTask, setTasks) => {
-    console.log('Sending taskId:', taskId);
-
     try {
       const response = await fetch(
         `${import.meta.env.VITE_SERVER_URL}/fetch/edittask`,
@@ -128,6 +126,8 @@ const KanbanBoard = () => {
             content: updatedTask.content,
             completed: updatedTask.completed,
             status: updatedTask.status,
+            due_date: updatedTask.due_date,
+            tags: updatedTask.tags,
           }),
         }
       );
@@ -259,7 +259,7 @@ const KanbanBoard = () => {
   const editTask = (columnId, taskId, updatedTask) => {
     setTasks((prev) => {
       const updatedItems = prev[columnId].items.map((task) =>
-        task.id === taskId ? { ...task, ...updatedTask } : task
+        task._id === taskId ? { ...task, ...updatedTask } : task
       );
       return {
         ...prev,

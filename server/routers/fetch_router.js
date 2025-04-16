@@ -163,6 +163,7 @@ router.post("/addtask", (req, res) => {
                 status: columnTitle,
                 due_date: null,
                 completed: false,
+                tags: null,
             };
 
             taskDocument.tasks.get(columnId).items.push(newTask);
@@ -215,11 +216,11 @@ router.delete("/deletetask/:columnId/:taskId", (req, res) => {
 
 // Route to edit a Task
 router.put("/edittask", (req, res) => {
-    const { columnId, taskId, content, completed, status } = req.body;
+    const { columnId, taskId, content, completed, status, due_date, tags } = req.body;
 
-    console.log('Received data:', { columnId, taskId, content, completed, status });
+    console.log('Received data:', { columnId, taskId, content, completed, status, due_date, tags });
 
-    if (!columnId || !taskId || !content || status === undefined) {
+    if (!columnId || !taskId || !content.trim()) {
         return res.status(400).json({ message: "Missing columnId, taskId, content, or completed status" });
     }
 
@@ -238,6 +239,8 @@ router.put("/edittask", (req, res) => {
                     task.content = content;
                     task.completed = completed;
                     task.status = status;
+                    task.due_date = due_date ? new Date(due_date) : null;
+                    task.tags = tags ?? null;
                 }
                 return task;
             });
@@ -335,5 +338,9 @@ router.delete("/deletecolumn/:columnId", (req, res) => {
             res.status(500).json({ message: "Error retrieving tasks from the database", error: error.message });
         });
 });
+
+router.post("/addtag", (req, res) => {
+    
+})
 
 export default router;

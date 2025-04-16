@@ -6,8 +6,17 @@ import {
   faPencilSquare,
   faCalendarAlt,
 } from '@fortawesome/free-solid-svg-icons';
+import Tag from './Tag';
 
-const Task = ({ task, index, columnId, deleteTask, editTask }) => {
+const Task = ({
+  task,
+  index,
+  columnId,
+  deleteTask,
+  editTask,
+  tags,
+  setTags,
+}) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newContent, setNewContent] = useState(task.content);
   const [newStatus, setNewStatus] = useState(task.status ?? '');
@@ -29,6 +38,7 @@ const Task = ({ task, index, columnId, deleteTask, editTask }) => {
         completed: task.completed,
         status: newStatus,
         due_date: dueDate,
+        tags: tags,
       });
     }
 
@@ -46,20 +56,22 @@ const Task = ({ task, index, columnId, deleteTask, editTask }) => {
       completed: !task.completed,
       status: task.status ?? '',
       due_date: dueDate,
+      tags: tags,
     };
 
-    editTask(columnId, task.id, updatedTask);
+    editTask(columnId, task._id, updatedTask);
   };
 
   const handleDateChange = (event) => {
     const newDate = event.target.value;
     setDueDate(newDate);
-    editTask(columnId, task.id, { ...task, due_date: newDate });
+    editTask(columnId, task._id, { ...task, due_date: newDate });
     setShowDate(false);
   };
 
   return (
-    <Draggable draggableId={task._id} index={index}>
+    // <Draggable draggableId={task._id} index={index}>
+    <Draggable key={task._id} draggableId={String(task._id)} index={index}>
       {(provided) => (
         <div
           ref={provided.innerRef}
@@ -87,7 +99,6 @@ const Task = ({ task, index, columnId, deleteTask, editTask }) => {
               {task.content}
             </span>
           )}
-
           <div className='task-buttons'>
             <input
               type='checkbox'
@@ -95,6 +106,15 @@ const Task = ({ task, index, columnId, deleteTask, editTask }) => {
               checked={task.completed ?? false}
               onChange={handleCheckboxChange}
               title={task.completed ? 'Mark Incomplete' : 'Mark Complete'}
+            />
+
+            <Tag
+              taskId={task._id}
+              task={task}
+              columnId={columnId}
+              setTags={setTags}
+              tags={task.tags || []}
+              editTask={editTask}
             />
 
             <button

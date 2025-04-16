@@ -2,8 +2,7 @@ import { Droppable } from '@hello-pangea/dnd';
 import Task from './Task';
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars } from '@fortawesome/free-solid-svg-icons';
-import ListMenu from './ListMenu';
+import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 
 // Represents a single column in the Kanban board
 const Column = ({
@@ -14,18 +13,22 @@ const Column = ({
   deleteTask,
   editTask,
   deleteColumn,
-  activeMenuColumn,
-  setActiveMenuColumn,
 }) => {
   const [newTask, setNewTask] = useState('');
-  const isMenuOpen = activeMenuColumn === id;
+  const [tags, setTags] = useState([]);
 
   return (
     <div className='column'>
       <div className='column-header'>
         <h2>
+          {/* {title.split('\n').map((line) => (
+            <span key={line}>
+              {line}
+              <br />
+            </span>
+          ))} */}
           {title.split('\n').map((line, index) => (
-            <span key={index}>
+            <span key={`${line}-${index}`}>
               {line}
               <br />
             </span>
@@ -35,19 +38,14 @@ const Column = ({
         <div className='column-right'>
           <button
             className='list-column-btn'
-            title='List Actions'
-            onClick={() => setActiveMenuColumn(isMenuOpen ? null : id)}
+            title='Delete Column'
+            onClick={() => deleteColumn(id)}
           >
-            <FontAwesomeIcon icon={faBars} />
-          </button>
-
-          {isMenuOpen && (
-            <ListMenu
-              deleteColumn={deleteColumn}
-              id={id}
-              setActiveMenuColumn={setActiveMenuColumn}
+            <FontAwesomeIcon
+              icon={faTimesCircle}
+              style={{ fontSize: '20px' }}
             />
-          )}
+          </button>
         </div>
       </div>
 
@@ -70,7 +68,7 @@ const Column = ({
         </button>
       </div>
 
-      <Droppable droppableId={id}>
+      <Droppable droppableId={id.toString()}>
         {(provided) => (
           <div ref={provided.innerRef} {...provided.droppableProps}>
             {tasks.length > 0 ? (
@@ -82,10 +80,12 @@ const Column = ({
                   columnId={id}
                   deleteTask={deleteTask}
                   editTask={editTask}
+                  tags={tags}
+                  setTags={setTags}
                 />
               ))
             ) : (
-              <p>No taks available in the column</p>
+              <p>No tasks available in the column</p>
             )}
             {provided.placeholder}
           </div>

@@ -6,6 +6,7 @@ const taskItemSchema = new mongoose.Schema(
     status: { type: String, required: true },
     due_date: { type: Date },
     completed: { type: Boolean, default: false },
+    tags: { type: [String], default: [] }
   },
 );
 

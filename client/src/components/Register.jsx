@@ -8,6 +8,7 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate(); 
+  console.log(import.meta.env.VITE_SERVER_URL)
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,7 +17,7 @@ const Register = () => {
     setMessage(""); // Clear previous message
 
     try {
-      const response = await fetch("http://localhost:8000/user/register", {
+      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/user/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

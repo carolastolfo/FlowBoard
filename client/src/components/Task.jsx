@@ -13,6 +13,7 @@ const Task = ({ task, index, columnId, deleteTask, editTask }) => {
   const [newStatus, setNewStatus] = useState(task.status ?? '');
   const [dueDate, setDueDate] = useState(task.due_date ?? '');
   const [showDate, setShowDate] = useState(false);
+  console.log(import.meta.env.VITE_SERVER_URL)
 
   useEffect(() => {
     setNewContent(task.content);

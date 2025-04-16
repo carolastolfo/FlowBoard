@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import jwt_decode from "jwt-decode"; 
 import "../styles/Boards.css";
 
 const Boards = ({ state }) => {
+  const navigate = useNavigate();
   const [searchName, setSearchName] = useState("");
   const [boards, setBoards] = useState([]);
   const [error, setError] = useState("");
@@ -10,15 +12,14 @@ const Boards = ({ state }) => {
   const [boardName, setBoardName] = useState("");
   const [backgroundColor, setBackgroundColor] = useState("");
   const token = localStorage.getItem("token");
-  const navigate = useNavigate();
-  const location = useLocation();
-  const userId = location.state?.userId;
+  const userId = token ? jwt_decode(token).userId : null;
+  console.log(import.meta.env.VITE_SERVER_URL)
 
   useEffect(() => {
     // fetch boards
     const fetchBoards = async () => {
       try {
-        const response = await fetch("http://localhost:8000/board", {
+        const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/fetch/board`, {
           method: "GET",
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -43,7 +44,7 @@ const Boards = ({ state }) => {
     }
 
     try {
-      const response = await fetch("http://localhost:8000/board", {
+      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/board`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -83,7 +84,7 @@ const Boards = ({ state }) => {
 
     try {
       const response = await fetch(
-        `http://localhost:8000/fetch/board/${searchName}`
+        `${import.meta.env.VITE_SERVER_URL}/fetch/board/${searchName}`
       );
       setSearchName("")
       if (!response.ok) {

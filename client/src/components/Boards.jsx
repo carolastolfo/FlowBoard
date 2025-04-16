@@ -17,7 +17,7 @@ const Boards = ({ userId }) => {
     // fetch boards
     const fetchBoards = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/board`, {
+        const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/fetch/board`, {
           method: "GET",
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -69,7 +69,7 @@ const Boards = ({ userId }) => {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_SERVER_URL}/board/${searchName}`
+        `${import.meta.env.VITE_SERVER_URL}/fetch/board/${searchName}`
       );
       if (!response.ok) {
         throw new Error("Board not found");

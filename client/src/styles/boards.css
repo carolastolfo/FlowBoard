@@ -1,8 +1,10 @@
 .boards-container {
-    width: 90vw;
-    min-height: 100vh;
-    background-color: #f4f4f4;
-    padding: 20px;
+  width: 90vw;
+  min-height: 100vh;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
   }
   
   .header {
@@ -101,46 +103,62 @@
   /* Create Board Form */
 .create-board-container {
   background-color: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  margin-top: 20px;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
+  margin-top: 30px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
-
 .create-board-container h2 {
-  font-size: 20px;
+  font-size: 24px;
   font-weight: bold;
-  margin-bottom: 15px;
+  margin-bottom: 25px;
+  color: #0056b3;
+  text-align: center;
 }
 
 .board-input {
-  padding: 10px;
+  padding: 12px 15px;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 8px;
   outline: none;
   width: 100%;
-  margin-bottom: 10px;
-  background: rgba(255, 255, 255, 0.6);
-  color: #0056b3;
+  margin-bottom: 15px;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #003366;
+  transition: border-color 0.3s ease;
+}
+
+.board-input:focus {
+  border-color: #6D72C3;
 }
 
 .color-picker {
   border: none;
-  width: 50px;
+  width: 60px;
   height: 40px;
   margin-bottom: 20px;
   cursor: pointer;
 }
 
+.create-board-button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
 .create-board-button {
-  padding: 8px 15px;
+  padding: 12px 25px;
   border: none;
   background-color: #6D72C3;
   color: white;
-  font-size: 14px;
-  border-radius: 5px;
+  font-size: 16px;
+  border-radius: 8px;
   cursor: pointer;
-  width: 250px;
+  transition: background-color 0.3s ease;
 }
 
 .create-board-button:hover {
@@ -151,4 +169,5 @@
   color: red;
   font-size: 14px;
   margin-top: 10px;
+  text-align: center;
 }

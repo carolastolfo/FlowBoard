@@ -110,6 +110,35 @@ router.post("/boards/:boardId/join", verifyToken, async (req, res) => {
     }
 });
 
+// Fetch joinRequests
+router.get("/joinRequests", verifyToken, async (req, res) => {
+    try {
+        const ownerId = req.userId;
+
+        // Find all boards owned by the current user
+        const ownedBoards = await Board.find({ ownerId: ownerId }, "_id");
+
+        const boardIds = ownedBoards.map(board => board._id);
+
+        // Find all pending join requests for these boards
+        const pendingRequests = await JoinRequest.find({
+            boardId: { $in: boardIds },
+            status: "pending"
+        })
+        .populate("boardId", "name") // inclue board's name
+        .populate("userId", "username") // include requester's username
+        console.log(pendingRequests.length)
+        res.status(200).json({
+            message: "Pending join requests sent",
+            request: pendingRequests,
+        });
+    } catch (error) {
+        console.error("Error fetching pending join requests:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+
 // Accept request from new team member  
 router.put("/joinRequests/:requestId/accept", verifyToken, async (req, res) => {
     try {

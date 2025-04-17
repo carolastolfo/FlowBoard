@@ -24,7 +24,6 @@ const Boards = ({ state }) => {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await response.json(); // get user boards
-        console.log("=======",data)
         setBoards(data);
       } catch (error) {
         console.error("Error fetching boards:", error);

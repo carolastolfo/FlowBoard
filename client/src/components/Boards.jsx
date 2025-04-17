@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import jwt_decode from "jwt-decode"; 
+import {jwtDecode} from 'jwt-decode';
 import "../styles/boards.css";
 
 const Boards = ({ state }) => {
@@ -12,20 +12,20 @@ const Boards = ({ state }) => {
   const [boardName, setBoardName] = useState("");
   const [backgroundColor, setBackgroundColor] = useState("");
   const token = localStorage.getItem("token");
-  const userId = token ? jwt_decode(token).userId : null;
+  const userId = token ? jwtDecode(token).userId : null;
   console.log(import.meta.env.VITE_SERVER_URL)
 
   useEffect(() => {
     // fetch boards
     const fetchBoards = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/fetch/board`, {
+        const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/board`, {
           method: "GET",
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await response.json(); // get user boards
+        console.log("=======",data)
         setBoards(data);
-        console.log(data)
       } catch (error) {
         console.error("Error fetching boards:", error);
       } finally {
@@ -68,7 +68,7 @@ const Boards = ({ state }) => {
     if (!searchName.trim()) {
       // If input is empty, fetch all boards again
       try {
-        const response = await fetch("http://localhost:8000/board", {
+        const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/board`, {
           method: "GET",
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -114,7 +114,7 @@ const Boards = ({ state }) => {
   const handleJoinRequest = async (boardId) => {
     try {
       const response = await fetch(
-        `http://localhost:8000/fetch/boards/${boardId}/join`,
+        `${import.meta.env.VITE_SERVER_URL}/fetch/boards/${boardId}/join`,
         {
           method: "POST", 
           headers: {

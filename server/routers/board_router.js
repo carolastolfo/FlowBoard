@@ -22,7 +22,7 @@ router.post("/", verifyToken, async (req, res) => {
             name,
             ownerId: req.userId,
             tasks: [],
-            teamMembers: [],
+            teamMembers: [req.userId],
             backgroundColor: backgroundColor,
         });
 

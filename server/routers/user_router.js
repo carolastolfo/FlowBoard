@@ -36,7 +36,8 @@ router.post("/login", async (req, res) => {
             user: {
                 id: user._id,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                boards: [],
             }
         });
     } catch (error) {
@@ -67,7 +68,8 @@ router.post("/register", async (req, res) => {
             username,
             email,
             password: hashedPassword,
-            role: "user" // Use provided role or default to "user"
+            role: "user", // Use provided role or default to "user"
+            boards: [],
         });
         
         // Save the user to the database
@@ -83,7 +85,8 @@ router.post("/register", async (req, res) => {
                 id: newUser._id,
                 username: newUser.username,
                 email: newUser.email,
-                role: newUser.role
+                role: newUser.role,
+                boards: newUser.boards,
             }
         });
         console.log("User registered")

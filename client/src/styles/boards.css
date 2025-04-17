@@ -19,6 +19,27 @@
   font-weight: bold;
 }
 
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.logout-button {
+  padding: 8px 15px;
+  border: none;
+  background-color: #e74c3c;
+  color: white;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.logout-button:hover {
+  background-color: #c0392b;
+}
+
 /* Wrap the input and button in a container to apply flexbox */
 .search-container {
   display: flex;
@@ -86,6 +107,9 @@
 .board-card h2 {
   font-size: 18px;
   font-weight: bold;
+  margin: 0; 
+  max-width: 80%; 
+  word-wrap: break-word; 
 }
 
 .board-card p {
@@ -102,21 +126,22 @@
 
 /* Create Board Form */
 .create-board-container {
+  display: flex;
+  flex-direction: column;
   background-color: white;
   padding: 30px;
   border-radius: 15px;
   box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
-  margin-top: 30px;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+  width: 100%;
+  max-width: 450px;
+  margin: 30px auto;
 }
 
 .create-board-container h2 {
-  font-size: 24px;
+  font-size: 16px;
   font-weight: bold;
   margin-bottom: 25px;
-  color: #0056b3;
+  color: #6D72C3;
   text-align: center;
 }
 
@@ -135,14 +160,7 @@
 
 .board-input:focus {
   border-color: #6D72C3;
-}
-
-.color-picker {
-  border: none;
-  width: 60px;
-  height: 40px;
-  margin-bottom: 20px;
-  cursor: pointer;
+  box-shadow: 0 0 0 3px rgba(109, 114, 195, 0.2);
 }
 
 .create-board-button-container {
@@ -152,11 +170,12 @@
 }
 
 .create-board-button {
-  padding: 12px 25px;
+  padding: 12px 15px;
+  align-self: center;
   border: none;
   background-color: #6D72C3;
   color: white;
-  font-size: 16px;
+  font-size: 14px;
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s ease;
@@ -164,6 +183,8 @@
 
 .create-board-button:hover {
   background-color: #5C60A5;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
 }
 
 .error-message {
@@ -187,26 +208,30 @@
 .board-controls {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-top: 10px;
+  align-items: flex-start;
+  width: 100%;
+  margin-bottom: 10px;
 }
 
 .delete-board-button {
-  display: inline-block;
-  margin-top: 8px;
-  padding: 4px 10px;
-  background-color:transparent;
-  font-size: 0.9rem;
-  border-radius: 999px;
-  text-align: center;
-  width: fit-content;
-  font-weight: 550;
-  color: rgba(255, 255, 255, 0.6);
+  background-color: transparent;
+  color: rgba(0, 0, 0, 0.5);
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  font-size: 16px;
+  transition: background-color 0.2s;
 }
 
 .delete-board-button:hover {
-  background-color: rgba(0, 0, 0, 0.2); 
-
+  background-color: rgba(0, 0, 0, 0.2);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 /* Media Queries for responsiveness */

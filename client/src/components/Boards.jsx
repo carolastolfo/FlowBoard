@@ -161,11 +161,32 @@ const Boards = ({ state }) => {
     }
   };
 
+  // logout function
+  const handleLogout = async () => {
+    try {
+      await fetch(`${import.meta.env.VITE_SERVER_URL}/user/logout`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+      
+      // remove token from localStorage
+      localStorage.removeItem("token");
+      
+      // Redirect to login page or home page
+      navigate("/");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
   return (
     <div className="boards-container">
       {/* Header */}
       <div className="header">
         <h1>Your Boards</h1>
+        <div className="header-controls">
         <div className="search-container">
           <input
             placeholder="Search by Board Name"
@@ -183,6 +204,10 @@ const Boards = ({ state }) => {
       >
         Manage Requests
       </button>
+      </div>
+        <button className="logout-button" onClick={handleLogout}>
+      Logout
+    </button>
         </div>
       </div>
 
@@ -196,19 +221,20 @@ const Boards = ({ state }) => {
               style={{ backgroundColor: board.backgroundColor }}
               onClick={() => handleRedirect(board._id)} // click to go to /board
             >
+              <div className="board-controls">
               <h2>{board.name}</h2>
-              <p>Team Members: {board.teamMembers.length}</p>
-              {/* If current user is the owner of a board, show Owner badge */}
               {board.ownerId === userId && (
-                <div className="board-controls">
-                <p className="board-badge">👑 Owner</p>
                 <button 
                 className="delete-board-button"
                 onClick={(e) => deleteBoard(board._id, e)}
               >                
                 ❌ 
               </button>
-              </div>
+              )}</div>
+              <p>Team Members: {board.teamMembers.length}</p>
+              {/* If current user is the owner of a board, show Owner badge */}
+              {board.ownerId === userId && (
+                <p className="board-badge">👑 Owner</p>
               )}
 
               {/* If current user is not a member of a board, show Join button */}

@@ -46,6 +46,18 @@ router.post("/login", async (req, res) => {
     }
 });
 
+// Logout route
+router.post("/logout", async (req, res) => {
+    try {
+      // the server doesn't need to do anything
+      // as the client side will remove the token from localStorage
+      res.status(200).json({ message: "Logout successful" });
+    } catch (error) {
+      console.error("Logout error:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
 // Registration route
 router.post("/register", async (req, res) => {
     console.log("trying to register new user")

@@ -136,7 +136,7 @@ h2 {
   flex-direction: column;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 10px 10px 5px 10px;
+  padding: 5px 10px 5px 10px;
   max-width: 100%;
   background: white;
   border-radius: 8px;
@@ -173,7 +173,6 @@ h2 {
   display: flex;
   flex-direction: row-reverse;
   width: 100%;
-  margin-top: 10px;
   align-items: center;
 }
 
@@ -281,4 +280,122 @@ h2 {
   cursor: pointer;
   font-size: 16px;
   padding: 5px;
+}
+
+/* Tag style */
+
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 250px; 
+  gap: 5px;
+  align-items: center;
+}
+
+.modal-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  width: 300px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+}
+
+.modal-content input[type='text'] {
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.save-btn,
+.cancel-btn {
+  width: 100px;
+  padding: 10px;
+  font-size: 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.save-btn {
+  background-color:#6D72C3;;
+  color: white;
+}
+
+.cancel-btn {
+  background-color: #343434;
+  color: white;
+}
+
+.save-btn:hover {
+  background-color: #5C60A5;
+}
+
+.cancel-btn:hover {
+  background-color: #000000;
+}
+
+.tag-delete-btn,
+.delete-due-date-btn {
+  margin-left: 8px;
+  padding: 5px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-Size: 15px;
+}
+
+.tag-delete-btn {
+  color: white;
+}
+
+.tag-delete-btn:hover {
+  transform: scale(1.3);
+  opacity: 0.7;
+}
+
+.delete-due-date-btn {
+  color: #6D72C3;
+  margin-left: 0px !important;
+}
+
+.delete-due-date-btn:hover {
+  transform: scale(1.3);
+  color: #5C60A5;;
+}
+
+.due-date-display {
+  margin-top: 10px;
 }

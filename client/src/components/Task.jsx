@@ -5,15 +5,30 @@ import {
   faTrash,
   faPencilSquare,
   faCalendarAlt,
+  faTimesCircle,
 } from '@fortawesome/free-solid-svg-icons';
+import Tag from './Tag';
 
-const Task = ({ task, index, columnId, deleteTask, editTask }) => {
+const formatDate = (date) => {
+  if (!date) return '';
+  const d = new Date(date);
+  return d.toISOString().split('T')[0];
+};
+
+const Task = ({
+  task,
+  index,
+  columnId,
+  deleteTask,
+  editTask,
+  tags,
+  setTags,
+}) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newContent, setNewContent] = useState(task.content);
   const [newStatus, setNewStatus] = useState(task.status ?? '');
   const [dueDate, setDueDate] = useState(task.due_date ?? '');
   const [showDate, setShowDate] = useState(false);
-  console.log(import.meta.env.VITE_SERVER_URL)
 
   useEffect(() => {
     setNewContent(task.content);
@@ -25,11 +40,12 @@ const Task = ({ task, index, columnId, deleteTask, editTask }) => {
     if (e) e.preventDefault();
 
     if (newContent.trim()) {
-      editTask(columnId, task.id, {
+      editTask(columnId, task._id, {
         content: newContent,
         completed: task.completed,
         status: newStatus,
         due_date: dueDate,
+        tags: tags,
       });
     }
 
@@ -47,20 +63,27 @@ const Task = ({ task, index, columnId, deleteTask, editTask }) => {
       completed: !task.completed,
       status: task.status ?? '',
       due_date: dueDate,
+      tags: tags,
     };
 
-    editTask(columnId, task.id, updatedTask);
+    editTask(columnId, task._id, updatedTask);
   };
 
   const handleDateChange = (event) => {
     const newDate = event.target.value;
     setDueDate(newDate);
-    editTask(columnId, task.id, { ...task, due_date: newDate });
+    editTask(columnId, task._id, { ...task, due_date: newDate });
     setShowDate(false);
   };
 
+  const handleDeleteDueDate = () => {
+    setDueDate('');
+    editTask(columnId, task._id, { ...task, due_date: '' });
+  };
+
   return (
-    <Draggable draggableId={task.id} index={index}>
+    // <Draggable draggableId={task._id} index={index}>
+    <Draggable key={task._id} draggableId={String(task._id)} index={index}>
       {(provided) => (
         <div
           ref={provided.innerRef}
@@ -82,13 +105,26 @@ const Task = ({ task, index, columnId, deleteTask, editTask }) => {
               autoFocus
             />
           ) : (
-            <span
-              className={`task-content ${task.completed ? 'completed' : ''}`}
-            >
-              {task.content}
-            </span>
+            <>
+              <span
+                className={`task-content ${task.completed ? 'completed' : ''}`}
+              >
+                {task.content}
+              </span>
+              {dueDate && (
+                <div className='due-date-display'>
+                  <button
+                    className='delete-due-date-btn'
+                    onClick={handleDeleteDueDate}
+                    title='Delete Due Date'
+                  >
+                    <FontAwesomeIcon icon={faTimesCircle} />
+                  </button>
+                  Due: {formatDate(dueDate)}
+                </div>
+              )}
+            </>
           )}
-
           <div className='task-buttons'>
             <input
               type='checkbox'
@@ -96,6 +132,15 @@ const Task = ({ task, index, columnId, deleteTask, editTask }) => {
               checked={task.completed ?? false}
               onChange={handleCheckboxChange}
               title={task.completed ? 'Mark Incomplete' : 'Mark Complete'}
+            />
+
+            <Tag
+              taskId={task._id}
+              task={task}
+              columnId={columnId}
+              setTags={setTags}
+              tags={task.tags || []}
+              editTask={editTask}
             />
 
             <button
@@ -108,7 +153,7 @@ const Task = ({ task, index, columnId, deleteTask, editTask }) => {
 
             <button
               className='delete-btn'
-              onClick={() => deleteTask(columnId, task.id)}
+              onClick={() => deleteTask(columnId, task._id)}
               title='Delete Task'
             >
               <FontAwesomeIcon icon={faTrash} />

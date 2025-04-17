@@ -4,6 +4,7 @@ import Boards from './components/Boards';
 import Homepage from './components/Homepage';
 import Login from './components/Login';
 import Register from './components/Register';
+import JoinRequestManage from './components/JoinRequestManage';
 import './App.css'; // Import the global styles
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
         <Route path='/boards' element={<Boards />} />
         <Route path='/board' element={<KanbanBoard />} />
         <Route path='/register' element={<Register />} />
+        <Route path='/joinRequestManage' element={<JoinRequestManage />} />
       </Routes>
     </Router>
   );

@@ -5,102 +5,102 @@
   background: rgba(255, 255, 255, 0.6);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
-  }
-  
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .header h1 {
-    font-size: 24px;
-    font-weight: bold;
-  }
-  
-  /* Wrap the input and button in a container to apply flexbox */
-  .search-container {
-    display: flex;
-    gap: 10px; /* Adjust the gap as needed */
-  }
-  
-  .search-input {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    outline: none;
-    width: 200px; /* Set a fixed width for the input box */
-  }
-  
-  .search-button {
-    padding: 8px 15px;
-    border: none;
-    background-color: #007bff;
-    color: white;
-    font-size: 14px;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .search-button:hover {
-    background-color: #0056b3;
-  }
-  
-  /* Horizontal scrolling container */
-  .boards-grid {
-    display: flex;
-    gap: 15px;
-    overflow-x: auto;
-    padding-bottom: 10px;
-    scroll-behavior: smooth;
-  }
-  
-  /* Hide scrollbar */
-  .boards-grid::-webkit-scrollbar {
-    height: 8px;
-  }
-  
-  .boards-grid::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 10px;
-  }
-  
-  .boards-grid::-webkit-scrollbar-track {
-    background: #f4f4f4;
-  }
-  
-  .board-card {
-    min-width: 250px;
-    max-width: 300px;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-    transition: transform 0.2s ease-in-out;
-  }
-  
-  .board-card:hover {
-    transform: translateY(-5px);
-  }
-  
-  .board-card h2 {
-    font-size: 18px;
-    font-weight: bold;
-  }
-  
-  .board-card p {
-    font-size: 14px;
-    color: #555;
-  }
-  
-  .no-boards {
-    font-size: 16px;
-    color: #777;
-    text-align: center;
-    margin-top: 20px;
-  }
-  /* Create Board Form */
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* Wrap the input and button in a container to apply flexbox */
+.search-container {
+  display: flex;
+  gap: 10px;
+}
+
+.search-input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  outline: none;
+  width: 200px;
+}
+
+.search-button {
+  padding: 8px 15px;
+  border: none;
+  background-color: #6D72C3;
+  color: white;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.search-button:hover {
+  background-color: #0056b3;
+}
+
+/* Grid for boards */
+.boards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  padding-bottom: 10px;
+}
+
+/* Hide scrollbar */
+.boards-grid::-webkit-scrollbar {
+  height: 8px;
+}
+
+.boards-grid::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}
+
+.boards-grid::-webkit-scrollbar-track {
+  background: #f4f4f4;
+}
+
+.board-card {
+  min-width: 250px;
+  max-width: 300px;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.board-card:hover {
+  transform: translateY(-5px);
+}
+
+.board-card h2 {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.board-card p {
+  font-size: 14px;
+  color: #555;
+}
+
+.no-boards {
+  font-size: 16px;
+  color: #777;
+  text-align: center;
+  margin-top: 20px;
+}
+
+/* Create Board Form */
 .create-board-container {
   background-color: white;
   padding: 30px;
@@ -111,6 +111,7 @@
   margin-left: auto;
   margin-right: auto;
 }
+
 .create-board-container h2 {
   font-size: 24px;
   font-weight: bold;
@@ -169,5 +170,80 @@
   color: red;
   font-size: 14px;
   margin-top: 10px;
+}
+
+.board-badge {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 10px;
+  background-color: rgba(0, 0, 0, 0.2); 
+  font-size: 0.9rem;
+  border-radius: 999px;
   text-align: center;
+  width: fit-content;
+  font-weight: 550;
+}
+
+/* Media Queries for responsiveness */
+@media (max-width: 1200px) {
+  .boards-grid {
+    grid-template-columns: repeat(3, 1fr); /* 3 columns for medium screens */
+  }
+
+  .board-card {
+    min-width: 220px;
+    max-width: 260px;
+  }
+}
+
+@media (max-width: 900px) {
+  .boards-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns for smaller screens */
+  }
+
+  .board-card {
+    min-width: 200px;
+    max-width: 240px;
+  }
+
+  .header h1 {
+    font-size: 20px;
+  }
+
+  .search-input {
+    width: 150px;
+  }
+
+  .search-button {
+    padding: 8px 12px;
+  }
+}
+
+@media (max-width: 600px) {
+  .boards-grid {
+    grid-template-columns: 1fr; /* 1 column for mobile screens */
+  }
+
+  .board-card {
+    min-width: 100%;
+    max-width: 100%;
+  }
+
+  .create-board-container {
+    padding: 20px;
+    max-width: 90%;
+  }
+
+  .board-input {
+    font-size: 14px;
+  }
+
+  .create-board-button {
+    font-size: 14px;
+    padding: 10px 20px;
+  }
+
+  .header h1 {
+    font-size: 18px;
+  }
 }

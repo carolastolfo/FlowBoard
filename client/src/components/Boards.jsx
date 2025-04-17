@@ -69,7 +69,7 @@ const Boards = ({ userId }) => {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_SERVER_URL}/board/${searchName}`
+        `${import.meta.env.VITE_SERVER_URL}/fetch/board/${searchName}`
       );
       if (!response.ok) {
         throw new Error("Board not found");
@@ -148,9 +148,11 @@ const Boards = ({ userId }) => {
           onChange={(e) => setBackgroundColor(e.target.value)}
           className="board-input"
         />
+        <div className="create-board-button-container">
         <button className="create-board-button" onClick={createBoard}>
           Create Board
         </button>
+        </div>
         {error && <p className="error-message">{error}</p>}
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import "../styles/register.css";
 
 const Register = () => {
@@ -12,8 +12,6 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const user = { username, email, password };
-
     setMessage(""); // Clear previous message
 
     try {
@@ -49,9 +47,10 @@ const Register = () => {
   return (
     <div className="register-container">
       <header className="register-header">
-        <h1 className="register-title">Register for Flowboard</h1>
       </header>
       <form onSubmit={handleSubmit} className="register-form">
+        <h1 className="register-title">Flowboard</h1>
+        <h2 className='form-title'>Register to continue</h2>
         <input
           type="text"
           placeholder="Username"
@@ -80,6 +79,9 @@ const Register = () => {
         <button type="submit" className="register-button">Register</button>
       </form>
       {message && <div className={`register-message ${message.includes("Error") ? "error" : ""}`}>{message}</div>}
+      <div className="auth-redirect">
+        Already have an account? <Link to="/login" className="auth-link">Login here</Link>
+      </div>
     </div>
   );
 };

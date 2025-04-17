@@ -35,7 +35,7 @@ const Boards = ({ state }) => {
     if (token) fetchBoards(); // only tries to get boards if user is logged in
   }, [token]);
 
-  // create boards function
+  // create board function
   const createBoard = async () => {
     if (!boardName || !backgroundColor) {
       setError("Both board name and background color are required.");
@@ -60,6 +60,33 @@ const Boards = ({ state }) => {
       setBackgroundColor("");
     } catch (error) {
       console.error("Error creating board:", error);
+    }
+  };
+
+  // delete board function
+  const deleteBoard = async (boardId, e) => {
+    e.stopPropagation(); // Prevent navigating to the board when clicking delete
+    
+    if (window.confirm("Are you sure you want to delete this board?")) {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/board/${boardId}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        
+        if (response.ok) {
+          // Remove the deleted board from state
+          setBoards(boards.filter(board => board._id !== boardId));
+        } else {
+          const data = await response.json();
+          setError(data.message);
+        }
+      } catch (error) {
+        console.error("Error deleting board:", error);
+        setError("Failed to delete board");
+      }
     }
   };
 
@@ -134,11 +161,32 @@ const Boards = ({ state }) => {
     }
   };
 
+  // logout function
+  const handleLogout = async () => {
+    try {
+      await fetch(`${import.meta.env.VITE_SERVER_URL}/user/logout`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+      
+      // remove token from localStorage
+      localStorage.removeItem("token");
+      
+      // Redirect to login page or home page
+      navigate("/");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
   return (
     <div className="boards-container">
       {/* Header */}
       <div className="header">
         <h1>Your Boards</h1>
+        <div className="header-controls">
         <div className="search-container">
           <input
             placeholder="Search by Board Name"
@@ -156,6 +204,10 @@ const Boards = ({ state }) => {
       >
         Manage Requests
       </button>
+      </div>
+        <button className="logout-button" onClick={handleLogout}>
+      Logout
+    </button>
         </div>
       </div>
 
@@ -169,7 +221,16 @@ const Boards = ({ state }) => {
               style={{ backgroundColor: board.backgroundColor }}
               onClick={() => handleRedirect(board._id)} // click to go to /board
             >
+              <div className="board-controls">
               <h2>{board.name}</h2>
+              {board.ownerId === userId && (
+                <button 
+                className="delete-board-button"
+                onClick={(e) => deleteBoard(board._id, e)}
+              >                
+                ❌ 
+              </button>
+              )}</div>
               <p>Team Members: {board.teamMembers.length}</p>
               {/* If current user is the owner of a board, show Owner badge */}
               {board.ownerId === userId && (

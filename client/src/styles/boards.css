@@ -184,6 +184,31 @@
   font-weight: 550;
 }
 
+.board-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.delete-board-button {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 10px;
+  background-color:transparent;
+  font-size: 0.9rem;
+  border-radius: 999px;
+  text-align: center;
+  width: fit-content;
+  font-weight: 550;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.delete-board-button:hover {
+  background-color: rgba(0, 0, 0, 0.2); 
+
+}
+
 /* Media Queries for responsiveness */
 @media (max-width: 1200px) {
   .boards-grid {

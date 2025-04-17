@@ -35,7 +35,7 @@ const Boards = ({ state }) => {
     if (token) fetchBoards(); // only tries to get boards if user is logged in
   }, [token]);
 
-  // create boards function
+  // create board function
   const createBoard = async () => {
     if (!boardName || !backgroundColor) {
       setError("Both board name and background color are required.");
@@ -60,6 +60,33 @@ const Boards = ({ state }) => {
       setBackgroundColor("");
     } catch (error) {
       console.error("Error creating board:", error);
+    }
+  };
+
+  // delete board function
+  const deleteBoard = async (boardId, e) => {
+    e.stopPropagation(); // Prevent navigating to the board when clicking delete
+    
+    if (window.confirm("Are you sure you want to delete this board?")) {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/board/${boardId}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        
+        if (response.ok) {
+          // Remove the deleted board from state
+          setBoards(boards.filter(board => board._id !== boardId));
+        } else {
+          const data = await response.json();
+          setError(data.message);
+        }
+      } catch (error) {
+        console.error("Error deleting board:", error);
+        setError("Failed to delete board");
+      }
     }
   };
 
@@ -173,7 +200,15 @@ const Boards = ({ state }) => {
               <p>Team Members: {board.teamMembers.length}</p>
               {/* If current user is the owner of a board, show Owner badge */}
               {board.ownerId === userId && (
+                <div className="board-controls">
                 <p className="board-badge">👑 Owner</p>
+                <button 
+                className="delete-board-button"
+                onClick={(e) => deleteBoard(board._id, e)}
+              >                
+                ❌ 
+              </button>
+              </div>
               )}
 
               {/* If current user is not a member of a board, show Join button */}

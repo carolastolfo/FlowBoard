@@ -34,3 +34,24 @@ router.post("/", verifyToken, async (req, res) => {
 });
 
 export default router;
+
+// Delete a board
+router.delete("/:boardId", verifyToken, async (req, res) => {
+    try {
+        const board = await Board.findById(req.params.boardId);
+        
+        if (!board) {
+            return res.status(404).json({ message: "Board not found" });
+        }
+        
+        // Check if the user is the owner of the board
+        if (board.ownerId.toString() !== req.userId) {
+            return res.status(403).json({ message: "You don't have permission to delete this board" });
+        }
+        
+        await Board.findByIdAndDelete(req.params.boardId);
+        res.json({ message: "Board deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+});

@@ -5,8 +5,15 @@ import {
   faTrash,
   faPencilSquare,
   faCalendarAlt,
+  faTimesCircle,
 } from '@fortawesome/free-solid-svg-icons';
 import Tag from './Tag';
+
+const formatDate = (date) => {
+  if (!date) return '';
+  const d = new Date(date);
+  return d.toISOString().split('T')[0];
+};
 
 const Task = ({
   task,
@@ -69,6 +76,11 @@ const Task = ({
     setShowDate(false);
   };
 
+  const handleDeleteDueDate = () => {
+    setDueDate('');
+    editTask(columnId, task._id, { ...task, due_date: '' });
+  };
+
   return (
     // <Draggable draggableId={task._id} index={index}>
     <Draggable key={task._id} draggableId={String(task._id)} index={index}>
@@ -93,11 +105,25 @@ const Task = ({
               autoFocus
             />
           ) : (
-            <span
-              className={`task-content ${task.completed ? 'completed' : ''}`}
-            >
-              {task.content}
-            </span>
+            <>
+              <span
+                className={`task-content ${task.completed ? 'completed' : ''}`}
+              >
+                {task.content}
+              </span>
+              {dueDate && (
+                <div className='due-date-display'>
+                  <button
+                    className='delete-due-date-btn'
+                    onClick={handleDeleteDueDate}
+                    title='Delete Due Date'
+                  >
+                    <FontAwesomeIcon icon={faTimesCircle} />
+                  </button>
+                  Due: {formatDate(dueDate)}
+                </div>
+              )}
+            </>
           )}
           <div className='task-buttons'>
             <input

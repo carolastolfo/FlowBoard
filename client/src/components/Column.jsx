@@ -74,7 +74,7 @@ const Column = ({
             {tasks.length > 0 ? (
               tasks.map((task, index) => (
                 <Task
-                  key={task._id}
+                  key={task._id || `${index}`}
                   task={task}
                   index={index}
                   columnId={id}

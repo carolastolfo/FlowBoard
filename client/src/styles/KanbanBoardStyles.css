@@ -367,17 +367,35 @@ h2 {
   background-color: #000000;
 }
 
-.tag-delete-btn {
+.tag-delete-btn,
+.delete-due-date-btn {
   margin-left: 8px;
   padding: 5px;
   background: transparent;
   border: none;
-  color: white;
   cursor: pointer;
   font-Size: 15px;
+}
+
+.tag-delete-btn {
+  color: white;
 }
 
 .tag-delete-btn:hover {
   transform: scale(1.3);
   opacity: 0.7;
+}
+
+.delete-due-date-btn {
+  color: #6D72C3;
+  margin-left: 0px !important;
+}
+
+.delete-due-date-btn:hover {
+  transform: scale(1.3);
+  color: #5C60A5;;
+}
+
+.due-date-display {
+  margin-top: 10px;
 }

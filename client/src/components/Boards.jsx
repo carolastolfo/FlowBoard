@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {jwtDecode} from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import "../styles/boards.css";
 
 const Boards = ({ state }) => {
@@ -115,7 +115,7 @@ const Boards = ({ state }) => {
       const response = await fetch(
         `${import.meta.env.VITE_SERVER_URL}/fetch/boards/${boardId}/join`,
         {
-          method: "POST", 
+          method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -123,7 +123,7 @@ const Boards = ({ state }) => {
         }
       );
       if (!response.ok) {
-        const data = await response.json(); 
+        const data = await response.json();
         alert(data.message);
         return
       }
@@ -149,6 +149,13 @@ const Boards = ({ state }) => {
           <button onClick={handleSearch} className="search-button">
             Search
           </button>
+          {/* Manage Requests button */}
+          <button
+        className="search-button"
+        onClick={() => navigate("/joinRequestManage")}
+      >
+        Manage Requests
+      </button>
         </div>
       </div>
 
@@ -166,13 +173,13 @@ const Boards = ({ state }) => {
               <p>Team Members: {board.teamMembers.length}</p>
               {/* If current user is the owner of a board, show Owner badge */}
               {board.ownerId === userId && (
-                <p className="owner-badge">👑 Owner</p>
+                <p className="board-badge">👑 Owner</p>
               )}
 
               {/* If current user is not a member of a board, show Join button */}
               {board.ownerId !== userId && !board.teamMembers.includes(userId) && (
                 <button
-                  className="owner-badge"
+                  className="board-badge"
                   onClick={(e) => {
                     e.stopPropagation(); // prevent board redirect
                     console.log(`User ${userId} wants to join board ${board._id}`);
@@ -189,6 +196,7 @@ const Boards = ({ state }) => {
           <p className="no-boards">No boards found.</p>
         )}
       </div>
+
       {/* Create Board Form */}
       <div className="create-board-container">
         <h2>Create a New Board</h2>
@@ -207,9 +215,9 @@ const Boards = ({ state }) => {
           className="board-input"
         />
         <div className="create-board-button-container">
-        <button className="create-board-button" onClick={createBoard}>
-          Create Board
-        </button>
+          <button className="create-board-button" onClick={createBoard}>
+            Create Board
+          </button>
         </div>
         {error && <p className="error-message">{error}</p>}
       </div>

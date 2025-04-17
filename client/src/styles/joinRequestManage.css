@@ -1,0 +1,116 @@
+.join-requests-container {
+    width: 90vw;
+    min-height: 100vh;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    margin: 0 auto;
+}
+
+.join-requests-container h1 {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Grid layout for cards */
+.request-list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding-bottom: 10px;
+    overflow-y: auto;
+}
+
+/* Request card style */
+.request-card {
+    min-width: 250px;
+    max-width: 300px;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #f0f0f0;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+}
+
+.request-card:hover {
+    transform: translateY(-5px);
+}
+
+.request-card p {
+    font-size: 14px;
+    margin: 0.5rem 0;
+    color: #555;
+}
+
+.action-buttons {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+}
+
+.action-buttons button {
+    flex: 1;
+    padding: 8px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.action-buttons button:first-child {
+    background-color: #4caf50;
+    color: white;
+}
+
+.action-buttons button:last-child {
+    background-color: #f44336;
+    color: white;
+}
+
+.error-message {
+    color: red;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.boards-button {
+    padding: 8px 15px;
+    border: none;
+    background-color: #6D72C3;
+    color: white;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.boards-button:hover {
+    background-color: #0056b3;
+}
+
+/* Responsive breakpoints */
+@media (max-width: 1200px) {
+    .request-list {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .request-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .request-list {
+        grid-template-columns: 1fr;
+    }
+
+    .request-card {
+        min-width: 100%;
+        max-width: 100%;
+    }
+}
+

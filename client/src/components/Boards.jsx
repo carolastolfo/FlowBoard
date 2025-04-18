@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from 'jwt-decode';
+import socket from "../socket";
 import "../styles/boards.css";
+
 
 const Boards = ({ state }) => {
   const navigate = useNavigate();
@@ -14,6 +16,7 @@ const Boards = ({ state }) => {
   const token = localStorage.getItem("token");
   const userId = token ? jwtDecode(token).userId : null;
   console.log(import.meta.env.VITE_SERVER_URL)
+
 
   useEffect(() => {
     // fetch boards
@@ -31,9 +34,35 @@ const Boards = ({ state }) => {
         setLoading(false);
       }
     };
-
-    if (token) fetchBoards(); // only tries to get boards if user is logged in
+    if (token) fetchBoards();  // only tries to get boards if user is logged in
   }, [token]);
+
+  // Websocket useEffect
+  useEffect(() => {
+    // Ensure socket is connected
+    if (!socket.connected) socket.connect();
+    console.log("Socket connected");
+
+    const handleBoardCreated = (newBoard) => {
+      console.log("Received boardCreated event:", newBoard);
+      setBoards((prevBoards) => [newBoard, ...prevBoards]);
+    };
+
+    const handleBoardDeleted = (deletedBoardId) => {
+      console.log("Received boardDeleted event:", deletedBoardId);
+      setBoards((prevBoards) =>
+        prevBoards.filter((board) => board._id !== deletedBoardId)
+      );
+    };
+
+    socket.on("boardCreated", handleBoardCreated);
+    socket.on("boardDeleted", handleBoardDeleted);
+
+    return () => {
+      socket.off("boardCreated", handleBoardCreated);
+      socket.off("boardDeleted", handleBoardDeleted);
+    };
+  }, []);
 
   // create board function
   const createBoard = async () => {
@@ -66,7 +95,7 @@ const Boards = ({ state }) => {
   // delete board function
   const deleteBoard = async (boardId, e) => {
     e.stopPropagation(); // Prevent navigating to the board when clicking delete
-    
+
     if (window.confirm("Are you sure you want to delete this board?")) {
       try {
         const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/board/${boardId}`, {
@@ -75,7 +104,7 @@ const Boards = ({ state }) => {
             Authorization: `Bearer ${token}`
           }
         });
-        
+
         if (response.ok) {
           // Remove the deleted board from state
           setBoards(boards.filter(board => board._id !== boardId));
@@ -170,10 +199,10 @@ const Boards = ({ state }) => {
           Authorization: `Bearer ${localStorage.getItem("token")}`
         }
       });
-      
+
       // remove token from localStorage
       localStorage.removeItem("token");
-      
+
       // Redirect to login page or home page
       navigate("/");
     } catch (error) {
@@ -187,27 +216,27 @@ const Boards = ({ state }) => {
       <div className="header">
         <h1>Your Boards</h1>
         <div className="header-controls">
-        <div className="search-container">
-          <input
-            placeholder="Search by Board Name"
-            className="search-input"
-            value={searchName}
-            onChange={(e) => setSearchName(e.target.value)}
-          />
-          <button onClick={handleSearch} className="search-button">
-            Search
+          <div className="search-container">
+            <input
+              placeholder="Search by Board Name"
+              className="search-input"
+              value={searchName}
+              onChange={(e) => setSearchName(e.target.value)}
+            />
+            <button onClick={handleSearch} className="search-button">
+              Search
+            </button>
+            {/* Manage Requests button */}
+            <button
+              className="search-button"
+              onClick={() => navigate("/joinRequestManage")}
+            >
+              Manage Requests
+            </button>
+          </div>
+          <button className="logout-button" onClick={handleLogout}>
+            Logout
           </button>
-          {/* Manage Requests button */}
-          <button
-        className="search-button"
-        onClick={() => navigate("/joinRequestManage")}
-      >
-        Manage Requests
-      </button>
-      </div>
-        <button className="logout-button" onClick={handleLogout}>
-      Logout
-    </button>
         </div>
       </div>
 
@@ -222,15 +251,15 @@ const Boards = ({ state }) => {
               onClick={() => handleRedirect(board._id)} // click to go to /board
             >
               <div className="board-controls">
-              <h2>{board.name}</h2>
-              {board.ownerId === userId && (
-                <button 
-                className="delete-board-button"
-                onClick={(e) => deleteBoard(board._id, e)}
-              >                
-                ❌ 
-              </button>
-              )}</div>
+                <h2>{board.name}</h2>
+                {board.ownerId === userId && (
+                  <button
+                    className="delete-board-button"
+                    onClick={(e) => deleteBoard(board._id, e)}
+                  >
+                    ❌
+                  </button>
+                )}</div>
               <p>Team Members: {board.teamMembers.length}</p>
               {/* If current user is the owner of a board, show Owner badge */}
               {board.ownerId === userId && (

@@ -1,18 +1,27 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import "../styles/register.css";
 
 const Register = () => {
+  const location = useLocation();
+  const navigate = useNavigate(); 
+
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(location.state?.email || "");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const navigate = useNavigate(); 
   console.log(import.meta.env.VITE_SERVER_URL)
+
+
+  useEffect(() => {
+    if (location.state?.email) {
+      setEmail(location.state.email);
+    }
+  }, [location.state]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage(""); // Clear previous message
+    setMessage(""); // clear previous message
 
     try {
       const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/user/register`, {
@@ -32,7 +41,7 @@ const Register = () => {
 
         // Redirect to boards page after successful registration
         setTimeout(() => {
-          navigate("/login"); // Redirect user and maybe later pass on user id as param /${data.userId}
+          navigate("/boards"); 
         }, 1000); // Delay for UX
 
       } else {
@@ -50,7 +59,7 @@ const Register = () => {
       </header>
       <form onSubmit={handleSubmit} className="register-form">
         <h1 className="register-title">Flowboard</h1>
-        <h2 className='form-title'>Register to continue</h2>
+        <h2 className='form-title'>Sign up to continue</h2>
         <input
           type="text"
           placeholder="Username"
@@ -76,7 +85,7 @@ const Register = () => {
           required
           className="register-input"
         />
-        <button type="submit" className="register-button">Register</button>
+        <button type="submit" className="register-button">Sign up</button>
       </form>
       {message && <div className={`register-message ${message.includes("Error") ? "error" : ""}`}>{message}</div>}
       <div className="auth-redirect">

@@ -12,7 +12,8 @@
   /* Header styling */
   .register-header {
     display: flex;
-    justify-content: center;
+    flex-direction: row-reverse;
+    justify-content: space-between;
     margin-bottom: 40px;
   }
   
@@ -83,7 +84,6 @@
   
   .register-button:hover {
     background-color: #5C60A5;
-    transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
   

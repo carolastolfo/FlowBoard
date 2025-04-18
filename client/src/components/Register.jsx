@@ -1,18 +1,27 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import "../styles/register.css";
 
 const Register = () => {
+  const location = useLocation();
+  const navigate = useNavigate(); 
+
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(location.state?.email || "");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const navigate = useNavigate(); 
   console.log(import.meta.env.VITE_SERVER_URL)
+
+
+  useEffect(() => {
+    if (location.state?.email) {
+      setEmail(location.state.email);
+    }
+  }, [location.state]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage(""); // Clear previous message
+    setMessage(""); // clear previous message
 
     try {
       const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/user/register`, {

@@ -119,7 +119,7 @@ const Boards = ({ state }) => {
 
       const data = await response.json();
       console.log(data);
-      setBoards([data]);
+      setBoards(data);
       setError("");
     } catch (err) {
       setBoards([]);

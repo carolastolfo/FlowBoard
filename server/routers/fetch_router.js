@@ -193,6 +193,9 @@ router.put("/joinRequests/:requestId/accept", verifyToken, async (req, res) => {
         request.status = "accepted";
         await request.save();
 
+        // Emit socket event to all clients
+        req.app.locals.io.emit("boardCreated", board);
+
         res.json({ message: "User added to the board", board });
     } catch (error) {
         console.error("Error accepting join request:", error);

@@ -4,13 +4,20 @@ import { verifyToken } from "../middleware/auth.js";
 
 const router = express.Router();
 
-// Get boards for logged-in user
+// Get boards for logged-in user (both owned and as team member)
 router.get("/", verifyToken, async (req, res) => {
     try {
-        const boards = await Board.find({ ownerId: req.userId });
+        // find boards where user is either the owner OR a team member
+        const boards = await Board.find({
+            $or: [
+                { ownerId: req.userId },
+                { teamMembers: req.userId }
+            ]
+        });
+        
         res.json(boards);
     } catch (error) {
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: "Server error", error: error.message });
     }
 });
 

@@ -102,7 +102,6 @@
   
   .registration-button:hover {
     background-color: #5C60A5;
-    transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
   

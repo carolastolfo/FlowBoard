@@ -17,7 +17,7 @@ const Homepage = () => {
       <header className='header'>
         <h1 className='logo'>FlowBoard</h1>
         <div className='auth-links'>
-          <Link to='/login'>Login</Link>
+          <Link to='/login'>Log in</Link>
           <Link to='/register'>Sign up</Link>
         </div>
       </header>

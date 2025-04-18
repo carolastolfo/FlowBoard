@@ -50,7 +50,7 @@ const Login = () => {
       </header>
       <form onSubmit={handleSubmit} className="login-form">
         <h1 className="login-title">FlowBoard</h1>
-        <h2 className="form-title">Login to continue</h2>
+        <h2 className="form-title">Log in to continue</h2>
         <input
           type="text"
           placeholder="Email"

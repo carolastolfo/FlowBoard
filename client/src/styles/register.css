@@ -12,7 +12,8 @@
   /* Header styling */
   .register-header {
     display: flex;
-    justify-content: center;
+    flex-direction: row-reverse;
+    justify-content: space-between;
     margin-bottom: 40px;
   }
   

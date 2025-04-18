@@ -54,15 +54,23 @@ router.put("/updateTaskColumn/:taskId", async (req, res) => {
 
 // Search boards by Name
 router.get("/board/:boardName", async (req, res) => {
-    console.log('search a board')
+    console.log('Searching boards');
     const boardName = req.params.boardName;
-    const board = await Board.findOne({ name: { $regex: boardName, $options: "i" } }); // case insensitive
 
-    if (!board) {
-        return res.status(404).json({ message: "Board not found" })
+    try {
+        const boards = await Board.find({ name: { $regex: boardName, $options: "i" } }); // case-insensitive search
+
+        if (!boards.length) {
+            return res.status(404).json({ message: "No matching boards found" });
+        }
+
+        res.json(boards);
+    } catch (error) {
+        console.error("Error fetching boards:", error);
+        res.status(500).json({ message: "Server error" });
     }
-    res.json(board)
 });
+
 
 // Request to join team board
 router.post("/boards/:boardId/join", verifyToken, async (req, res) => {
@@ -169,13 +177,13 @@ router.put("/joinRequests/:requestId/accept", verifyToken, async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        // Add the board to user's boards if not already there
+        // Add the board to user's boards
         if (!user.boards.includes(board._id)) {
             user.boards.push(board._id);
             await user.save();
         }
 
-        // Add the user to board's teamMembers if not already there
+        // Add the user to board's teamMembers
         if (!board.teamMembers.includes(user._id)) {
             board.teamMembers.push(user._id);
             await board.save();

@@ -10,10 +10,10 @@ const Homepage = () => {
   return (
     <div className='homepage-container'>
       <header className='header'>
-        <h1 className='logo'>Flowboard</h1>
+        <h1 className='logo'>FlowBoard</h1>
         <div className='auth-links'>
           <Link to='/login'>Login</Link>
-          <Link to='/register'>Register</Link>
+          <Link to='/register'>Sign up</Link>
         </div>
       </header>
 
@@ -22,7 +22,7 @@ const Homepage = () => {
           <h2 className='hero-text'>
             Stay on top of your tasks effortlessly.
             <br />
-            Simplify your workflow and boost productivity with Flowboard.
+            Simplify your workflow and boost productivity with FlowBoard.
           </h2>
           <div className='signup-container'>
             <input
@@ -30,7 +30,7 @@ const Homepage = () => {
               placeholder='Enter your email'
               className='email-input'
             />
-            <button className='registration-button' onClick={() => navigate("/register")}>Register</button>
+            <button className='registration-button' onClick={() => navigate("/register")}>Sign up</button>
           </div>
         </div>
         <div className='hero-item'>

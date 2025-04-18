@@ -18,7 +18,7 @@
   .logo {
     font-size: 24px;
     font-weight: bold;
-    color: #0056b3;
+    color: #6D72C3;
   }
   
   .auth-links {
@@ -75,12 +75,21 @@
   .email-input {
     padding: 8px;
     border: 1px solid #ccc;
-    background-color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.8);
+    color: #003366;
+    transition: border-color 0.3s ease;
     border-radius: 5px;
     outline: none;
     width: 250px;
+    font-size: 12px;
+
   }
   
+  .email-input:focus {
+    border-color: #6D72C3;
+    box-shadow: 0 0 0 3px rgba(109, 114, 195, 0.2);
+  }
+
   .registration-button {
     padding: 8px 15px;
     border: none;
@@ -93,5 +102,11 @@
   
   .registration-button:hover {
     background-color: #5C60A5;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .registration-button:active {
+    transform: translateY(0);
   }
   

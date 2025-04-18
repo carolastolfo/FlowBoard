@@ -71,7 +71,7 @@ const Login = () => {
       </form>
       {message && <div className={`login-message ${message.includes('Error') ? 'error' : ''}`}>{message}</div>} {/* Display message */}
       <div className="auth-redirect">
-        Don't have an account? <Link to="/register" className="auth-link">Register here</Link>
+        Don't have an account? <Link to="/register" className="auth-link">Sign up here</Link>
       </div>
     </div>
 

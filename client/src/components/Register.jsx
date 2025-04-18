@@ -50,7 +50,7 @@ const Register = () => {
       </header>
       <form onSubmit={handleSubmit} className="register-form">
         <h1 className="register-title">Flowboard</h1>
-        <h2 className='form-title'>Register to continue</h2>
+        <h2 className='form-title'>Sign up to continue</h2>
         <input
           type="text"
           placeholder="Username"
@@ -76,7 +76,7 @@ const Register = () => {
           required
           className="register-input"
         />
-        <button type="submit" className="register-button">Register</button>
+        <button type="submit" className="register-button">Sign up</button>
       </form>
       {message && <div className={`register-message ${message.includes("Error") ? "error" : ""}`}>{message}</div>}
       <div className="auth-redirect">

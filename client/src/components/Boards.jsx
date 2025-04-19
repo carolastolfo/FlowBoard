@@ -16,7 +16,6 @@ const Boards = ({ state }) => {
   const token = localStorage.getItem('token');
   const userId = token ? jwtDecode(token).userId : null;
   console.log(import.meta.env.VITE_SERVER_URL);
-  console.log(import.meta.env.VITE_SERVER_URL)
 
 
   useEffect(() => {
@@ -49,7 +48,11 @@ const Boards = ({ state }) => {
 
     const handleBoardCreated = (newBoard) => {
       console.log("Received boardCreated event:", newBoard);
-      setBoards((prevBoards) => [newBoard, ...prevBoards]);
+      if (newBoard.teamMembers.includes(userId)) {
+        setBoards((prevBoards) => [newBoard, ...prevBoards]);
+      } else {
+        console.log("User not part of this board, ignoring...");
+      }
     };
 
     const handleBoardDeleted = (deletedBoardId) => {
@@ -166,7 +169,7 @@ const Boards = ({ state }) => {
   // function to redirect to board
   const handleRedirect = (boardId) => {
     setTimeout(() => {
-      navigate("/board", { state: { boardId }}); // redirect user and maybe later pass on boardid as param
+      navigate(`/board/${boardId}`);
       socket.emit("joinBoard", boardId);
     }, 1000);
   };

@@ -3,8 +3,8 @@ import User from "../models/user.js";
 import Board from "../models/board.js";
 import JoinRequest from "../models/joinRequest.js";
 import { verifyToken } from "../middleware/auth.js";
-// import Task from "../models/task.js";
-import Task, { defaultColumns } from "../models/task.js";
+import Task from "../models/task.js";
+// import Task, { defaultColumns } from "../models/task.js";
 
 const router = express.Router();
 
@@ -295,7 +295,7 @@ router.post("/addtask", (req, res) => {
             return taskDocument.save().then(() => {
                 console.log("Task added:", newTask);
 
-                 // Emit socket event to all clients
+                // Emit socket event to all clients
                 req.app.locals.io.emit("TaskSaved", { newTask, columnId });
 
                 res.status(201).json({
@@ -387,14 +387,14 @@ router.put("/edittask", (req, res) => {
             return taskDocument.save().then((savedDoc) => ({ savedDoc, taskFound }));
         })
         .then(({ savedDoc, taskFound }) => {
-          console.log(`Task ${taskId} in column ${columnId} updated`);
-    
-          // Emit the update to all clients (except sender)
-          req.app.locals.io.emit("TaskUpdated", {
-            columnId,
-            taskId,
-            updatedTask: taskFound,
-          });
+            console.log(`Task ${taskId} in column ${columnId} updated`);
+
+            // Emit the update to all clients (except sender)
+            req.app.locals.io.emit("TaskUpdated", {
+                columnId,
+                taskId,
+                updatedTask: taskFound,
+            });
             res.json({ message: "Task updated successfully", tasks: savedDoc.tasks });
         })
         .catch((err) => {

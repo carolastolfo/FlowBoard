@@ -18,7 +18,7 @@ const columnSchema = new mongoose.Schema(
   },
 );
 
-export const defaultColumns = {
+const defaultColumns = {
   "col-1": { title: "To Do", items: [] },
   "col-2": { title: "Doing", items: [] },
   "col-3": { title: "Done", items: [] },

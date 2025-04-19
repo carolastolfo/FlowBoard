@@ -315,7 +315,7 @@ const KanbanBoard = () => {
   ) => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_SERVER_URL}/fetch/updateTaskColumn`,
+        `${import.meta.env.VITE_SERVER_URL}/fetch/updateTaskColumn/${taskId}`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },

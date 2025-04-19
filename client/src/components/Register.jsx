@@ -58,7 +58,7 @@ const Register = () => {
       <header className="register-header">
       </header>
       <form onSubmit={handleSubmit} className="register-form">
-        <h1 className="register-title">Flowboard</h1>
+        <h1 className="register-title">FlowBoard</h1>
         <h2 className='form-title'>Sign up to continue</h2>
         <input
           type="text"
@@ -89,7 +89,7 @@ const Register = () => {
       </form>
       {message && <div className={`register-message ${message.includes("Error") ? "error" : ""}`}>{message}</div>}
       <div className="auth-redirect">
-        Already have an account? <Link to="/login" className="auth-link">Login here</Link>
+        Already have an account? <Link to="/login" className="auth-link">Log in here</Link>
       </div>
     </div>
   );

@@ -174,8 +174,8 @@ const Boards = ({ state }) => {
     }, 1000);
   };
 
-  if (!token) return <p>Please log in to see your boards.</p>;
-  if (loading) return <p>Loading boards...</p>;
+  if (!token) return <h2 style={{color: '#6D72C3'}}>Please log in to see your boards.</h2>;
+  if (loading) return <h2 style={{color: '#6D72C3'}}>Loading boards...</h2>;
 
   const handleJoinRequest = async (boardId) => {
     try {

@@ -1,7 +1,7 @@
 import { io } from "socket.io-client";
 
 const socket = io(import.meta.env.VITE_SERVER_URL, {
-  withCredentials: true, //can't cors: origin * at the server(index.js)
+  withCredentials: true, // doesn't allow cors: origin * at the server
   autoConnect: true, // prevent auto connection
   transports: ["websocket"], // avoid polling fallback
 });

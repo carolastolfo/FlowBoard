@@ -278,6 +278,10 @@ router.post("/addtask", (req, res) => {
 
             return taskDocument.save().then(savedDoc => {
                 console.log("Task added:", newTask);
+
+                 // Emit socket event to all clients
+                req.app.locals.io.emit("TaskSaved", { newTask, columnId });
+
                 res.status(201).json({
                     message: "Task added successfully",
                     task: newTask,
@@ -314,6 +318,8 @@ router.delete("/deletetask/:columnId/:taskId", (req, res) => {
         })
         .then(savedDoc => {
             console.log(`Task with ID ${taskId} was successfully deleted from column ${columnId}`);
+            // Emit socket event to all clients
+            req.app.locals.io.emit("TaskDeleted", taskId);
             res.json({ message: "Task deleted", tasks: savedDoc.tasks });
         })
         .catch(error => {
@@ -341,6 +347,7 @@ router.put("/edittask", (req, res) => {
             const column = taskDocument.tasks.get(columnId);
             let taskFound = false;
 
+            // Update the task and store the updated task object
             column.items = column.items.map((task) => {
                 if (task._id.toString() === taskId) {
                     taskFound = true;
@@ -349,6 +356,7 @@ router.put("/edittask", (req, res) => {
                     task.status = status;
                     task.due_date = due_date ? new Date(due_date) : null;
                     task.tags = tags ?? null;
+                    taskFound = task;
                 }
                 return task;
             });
@@ -356,11 +364,17 @@ router.put("/edittask", (req, res) => {
             if (!taskFound) {
                 return res.status(404).json({ message: "Task not found" });
             }
-
-            return taskDocument.save();
+            return taskDocument.save().then((savedDoc) => ({ savedDoc, taskFound }));
         })
-        .then((savedDoc) => {
-            console.log(`Task ${taskId} in column ${columnId} updated`);
+        .then(({ savedDoc, taskFound }) => {
+          console.log(`Task ${taskId} in column ${columnId} updated`);
+    
+          // Emit the update to all clients (except sender)
+          req.app.locals.io.emit("TaskUpdated", {
+            columnId,
+            taskId,
+            updatedTask: taskFound,
+          });
             res.json({ message: "Task updated successfully", tasks: savedDoc.tasks });
         })
         .catch((err) => {
@@ -396,6 +410,8 @@ router.post("/addcolumn", (req, res) => {
             task.save()
                 .then(() => {
                     console.log(`New column added: ${columnName} (ID: ${newColumnId})`);
+                    // Emit socket event to all clients
+                    req.app.locals.io.emit("columnSaved", newColumnId);
                     res.status(201).json({ message: "Column added", tasks: task.tasks });
                 })
                 .catch((error) => {
@@ -434,6 +450,8 @@ router.delete("/deletecolumn/:columnId", (req, res) => {
             task.save()
                 .then(() => {
                     console.log(`Column ${columnId} deleted successfully`);
+                    // Emit socket event to all clients
+                    req.app.locals.io.emit("columnDeleted", columnId);
                     res.json({ message: "Column deleted", tasks: task.tasks });
                 })
                 .catch((error) => {

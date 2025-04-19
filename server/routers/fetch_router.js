@@ -7,6 +7,7 @@ import Task, { defaultColumns } from "../models/task.js";
 
 const router = express.Router();
 
+// Version ok
 // Route to Move a task
 router.put("/updateTaskColumn/:taskId", async (req, res) => {
     const { taskId } = req.params;

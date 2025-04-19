@@ -109,14 +109,48 @@ const KanbanBoard = () => {
       });
     };
 
+    const handleColumnSaved = (columnId, columnName) => {
+      console.log('Received ColumnSaved event:', columnId, columnName);
+    
+      setTasks((prevTasks) => ({
+        ...prevTasks,
+        [columnId]: { title: columnName, items: [] }, // Default empty column data
+      }));
+    
+      setColumnOrder((prevOrder) => {
+        if (!prevOrder.includes(columnId)) {
+          return [...prevOrder, columnId];
+        }
+        return prevOrder;
+      });
+    };
+    
+
+    const handleColumnDeleted = (columnId) => {
+      console.log('Received ColumnDeleted event:', columnId);
+
+      setTasks((prevTasks) => {
+        const updatedTasks = { ...prevTasks };
+        delete updatedTasks[columnId];
+        return updatedTasks;
+      });
+
+      setColumnOrder((prevOrder) => prevOrder.filter((id) => id !== columnId));
+    };
+
     socket.on('TaskSaved', handleTaskSaved);
     socket.on('TaskDeleted', handleTaskDeleted);
     socket.on('TaskUpdated', handleTaskUpdated);
+    socket.on('ColumnSaved', handleColumnSaved);
+    socket.on('ColumnDeleted', handleColumnDeleted);
 
     return () => {
       socket.off('TaskSaved', handleTaskSaved);
       socket.off('TaskDeleted', handleTaskDeleted);
       socket.off('TaskUpdated', handleTaskUpdated);
+      socket.off('ColumnSaved', handleColumnSaved);
+      socket.off('ColumnDeleted', handleColumnDeleted);
+
     };
   }, []);
 
@@ -178,8 +212,7 @@ const KanbanBoard = () => {
   const fetchDeleteTask = async (columnId, taskId, setTasks, boardId) => {
     try {
       const response = await fetch(
-        `${
-          import.meta.env.VITE_SERVER_URL
+        `${import.meta.env.VITE_SERVER_URL
         }/fetch/deletetask/${columnId}/${taskId}/${boardId}`,
         {
           method: 'DELETE',
@@ -284,8 +317,7 @@ const KanbanBoard = () => {
   ) => {
     try {
       const response = await fetch(
-        `${
-          import.meta.env.VITE_SERVER_URL
+        `${import.meta.env.VITE_SERVER_URL
         }/fetch/deletecolumn/${columnId}/${boardId}`,
         {
           method: 'DELETE',
@@ -493,31 +525,37 @@ const KanbanBoard = () => {
               }}
               {...provided.droppableProps}
             >
-              {columnOrder.map((columnId, index) => (
-                <Draggable key={columnId} draggableId={columnId} index={index}>
-                  {(provided) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                    >
-                      <Column
-                        key={columnId}
-                        id={columnId}
-                        title={tasks[columnId].title}
-                        tasks={tasks[columnId].items}
-                        addTask={addTask}
-                        deleteTask={deleteTask}
-                        deleteColumn={deleteColumn}
-                        editTask={editTask}
-                        activeMenuColumn={activeMenuColumn}
-                        setActiveMenuColumn={setActiveMenuColumn}
-                        boardId={boardId}
-                      />
-                    </div>
-                  )}
-                </Draggable>
-              ))}
+              {columnOrder.map((columnId, index) => {
+                const column = tasks[columnId];
+
+                // Prevent rendering if column data is missing
+                if (!column || !column.items) return null;
+                return (
+                  <Draggable key={columnId} draggableId={columnId} index={index}>
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                      >
+                        <Column
+                          key={columnId}
+                          id={columnId}
+                          title={tasks[columnId].title}
+                          tasks={tasks[columnId].items}
+                          addTask={addTask}
+                          deleteTask={deleteTask}
+                          deleteColumn={deleteColumn}
+                          editTask={editTask}
+                          activeMenuColumn={activeMenuColumn}
+                          setActiveMenuColumn={setActiveMenuColumn}
+                          boardId={boardId}
+                        />
+                      </div>
+                    )}
+                  </Draggable>
+                )
+              })}
               {provided.placeholder}
 
               <div className='add-column'>

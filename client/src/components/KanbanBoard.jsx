@@ -74,7 +74,7 @@ const KanbanBoard = () => {
     };
 
     const handleTaskDeleted = (deletedTaskId) => {
-      console.log('Received taskDeleted event:', deletedTaskId);
+      console.log('Received TaskDeleted event:', deletedTaskId);
       setTasks((prevTasks) =>
         produce(prevTasks, (draft) => {
           // Loop through all columns

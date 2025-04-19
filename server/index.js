@@ -27,7 +27,8 @@ const io = new Server(server, {
     origin: process.env.VITE_CLIENT_URL, // allow frontend 
     methods: ["GET", "POST", "DELETE", "PUT"],
     credentials: true, //  can't to use *
-  }
+  },
+  allowEIO3: true,
 });
 
 // middleware

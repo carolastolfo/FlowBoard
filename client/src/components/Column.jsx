@@ -27,12 +27,13 @@ const Column = ({
               <br />
             </span>
           ))} */}
-          {title.split('\n').map((line, index) => (
+          {(title || '').split('\n').map((line, index) => (
             <span key={`${line}-${index}`}>
               {line}
               <br />
             </span>
           ))}
+
         </h2>
 
         <div className='column-right'>
@@ -71,7 +72,7 @@ const Column = ({
       <Droppable droppableId={id.toString()}>
         {(provided) => (
           <div ref={provided.innerRef} {...provided.droppableProps}>
-            {tasks.length > 0 ? (
+            {(tasks && tasks.length > 0) ? (
               tasks.map((task, index) => (
                 <Task
                   key={task._id || `${index}`}
@@ -87,6 +88,23 @@ const Column = ({
             ) : (
               <p>No tasks available in the column</p>
             )}
+
+            {/* {tasks.length > 0 ? (
+              tasks.map((task, index) => (
+                <Task
+                  key={task._id || `${index}`}
+                  task={task}
+                  index={index}
+                  columnId={id}
+                  deleteTask={deleteTask}
+                  editTask={editTask}
+                  tags={tags}
+                  setTags={setTags}
+                />
+              ))
+            ) : (
+              <p>No tasks available in the column</p>
+            )} */}
             {provided.placeholder}
           </div>
         )}

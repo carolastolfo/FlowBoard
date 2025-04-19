@@ -159,7 +159,8 @@ const Boards = ({ state }) => {
   // function to redirect to board
   const handleRedirect = (boardId) => {
     setTimeout(() => {
-      navigate("/board"); // redirect user and maybe later pass on boardid as param
+      navigate("/board", { state: { boardId }}); // redirect user and maybe later pass on boardid as param
+      socket.emit("joinBoard", boardId);
     }, 1000);
   };
 

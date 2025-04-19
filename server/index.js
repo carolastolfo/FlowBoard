@@ -41,6 +41,12 @@ app.locals.io = io;
 io.on("connection", (socket) => {
   console.log("New WebSocket connection:", socket.id);
 
+   // Handle 'joinBoard' event when the user clicks on the board
+   socket.on("joinBoard", (boardId) => {
+    socket.join(boardId);  // Join the socket to the specific board room
+    console.log(`Socket ${socket.id} joined board ${boardId}`);
+  });
+
   socket.on("disconnect", () => {
     console.log("A WebSocket disconnected:", socket.id);
   });

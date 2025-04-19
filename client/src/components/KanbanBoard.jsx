@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import Column from './Column';
+import socket from '../socket';
+import { produce } from 'immer';
 import '../styles/KanbanBoardStyles.css';
+import { useParams } from 'react-router-dom';
 
-// Last version OK OK
 // Represents the entire board with multiple columns
 const KanbanBoard = () => {
   const [tasks, setTasks] = useState({});
@@ -11,6 +13,8 @@ const KanbanBoard = () => {
   const [newColumnName, setNewColumnName] = useState('');
   const boardRef = useRef(null);
   const [activeMenuColumn, setActiveMenuColumn] = useState(null);
+  const { boardId } = useParams();
+  // const boardId = location.state?.boardId;
 
   const defaultColumns = {
     'col-1': { title: 'To Do', items: [] },
@@ -19,8 +23,19 @@ const KanbanBoard = () => {
   };
 
   useEffect(() => {
-    fetchTask(setTasks);
-  }, []);
+    if (boardId) {
+      socket.emit('joinBoard', boardId);
+      console.log('Emitted joinBoard with', boardId);
+    }
+  }, [boardId]);
+
+  useEffect(() => {
+    if (boardId) {
+      fetchTask();
+    } else {
+      setTasks(defaultColumns);
+    }
+  }, [boardId]);
 
   useEffect(() => {
     setColumnOrder(Object.keys(tasks));
@@ -33,40 +48,109 @@ const KanbanBoard = () => {
     }
   }, [tasks]);
 
+  // Websocket useEffect
+  useEffect(() => {
+    // Ensure socket is connected
+    if (!socket.connected) socket.connect();
+    console.log('Socket connected in KanbanBoard');
+
+    const handleTaskSaved = (data) => {
+      console.log('Received TaskSaved event:', data);
+      const { newTask, columnId } = data;
+
+      setTasks((prevTasks) => {
+        const column = prevTasks[columnId] || { title: columnId, items: [] };
+
+        const updatedColumn = {
+          ...column,
+          items: [newTask, ...column.items],
+        };
+
+        return {
+          ...prevTasks,
+          [columnId]: updatedColumn,
+        };
+      });
+    };
+
+    const handleTaskDeleted = (deletedTaskId) => {
+      console.log('Received taskDeleted event:', deletedTaskId);
+      setTasks((prevTasks) =>
+        produce(prevTasks, (draft) => {
+          // Loop through all columns
+          Object.keys(draft).forEach((columnId) => {
+            // Find the task in the current column's items array
+            const index = draft[columnId].items.findIndex(
+              (task) => task._id === deletedTaskId
+            );
+            if (index !== -1) {
+              // Remove the task from the column if found
+              draft[columnId].items.splice(index, 1);
+            }
+          });
+        })
+      );
+    };
+
+    const handleTaskUpdated = (data) => {
+      console.log('Received TaskUpdated event:', data);
+      const { columnId, taskId, updatedTask } = data;
+
+      // Update the tasks state with the updated task information
+      setTasks((prevTasks) => {
+        const updatedItems = prevTasks[columnId].items.map((task) =>
+          task._id === taskId ? { ...task, ...updatedTask } : task
+        );
+
+        return {
+          ...prevTasks,
+          [columnId]: { ...prevTasks[columnId], items: updatedItems },
+        };
+      });
+    };
+
+    socket.on('TaskSaved', handleTaskSaved);
+    socket.on('TaskDeleted', handleTaskDeleted);
+    socket.on('TaskUpdated', handleTaskUpdated);
+
+    return () => {
+      socket.off('TaskSaved', handleTaskSaved);
+      socket.off('TaskDeleted', handleTaskDeleted);
+      socket.off('TaskUpdated', handleTaskUpdated);
+    };
+  }, []);
+
   // Function to fetch task
   const fetchTask = async () => {
     console.log('fetchTask is being called');
+    console.log('boardId is:', boardId);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_SERVER_URL}/fetch/task`
+        `${import.meta.env.VITE_SERVER_URL}/fetch/task/${boardId}`
       );
       if (!response.ok) throw new Error('Network response was not ok');
 
       const data = await response.json();
       console.log('Fetched task data:', data);
 
-      if (
-        data.length > 0 &&
-        data[0].tasks &&
-        Object.keys(data[0].tasks).length > 0
-      ) {
-        setTasks(data[0].tasks);
-        // setColumnOrder(Object.keys(data[0].tasks));
+      const validData = data.find((item) => item?.tasks);
+
+      if (validData) {
+        setTasks(validData.tasks);
       } else {
         setTasks(defaultColumns);
-        // setColumnOrder(Object.keys(defaultColumns));
       }
     } catch (error) {
       console.error('Error fetching tasks:', error);
-
       setTasks(defaultColumns);
-      // setColumnOrder(Object.keys(defaultColumns));
     }
   };
 
   // Function to fecth add a task
-  const fetchAddTask = async (columnId, content, setTasks) => {
+  const fetchAddTask = async (columnId, content, setTasks, boardId) => {
     if (!content.trim()) return;
+
+    console.log('Sending to backend:', { columnId, content, boardId });
 
     try {
       const response = await fetch(
@@ -74,7 +158,7 @@ const KanbanBoard = () => {
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ columnId, content }),
+          body: JSON.stringify({ columnId, content, boardId }),
         }
       );
 
@@ -91,13 +175,19 @@ const KanbanBoard = () => {
   };
 
   // Function to fetch delete task
-  const fetchDeleteTask = async (columnId, taskId, setTasks) => {
+  const fetchDeleteTask = async (columnId, taskId, setTasks, boardId) => {
     try {
       const response = await fetch(
         `${
           import.meta.env.VITE_SERVER_URL
-        }/fetch/deletetask/${columnId}/${taskId}`,
-        { method: 'DELETE' }
+        }/fetch/deletetask/${columnId}/${taskId}/${boardId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ boardId }),
+        }
       );
 
       if (!response.ok) {
@@ -113,7 +203,13 @@ const KanbanBoard = () => {
   };
 
   // Function to fetch edit task
-  const fetchEditTask = async (columnId, taskId, updatedTask, setTasks) => {
+  const fetchEditTask = async (
+    boardId,
+    columnId,
+    taskId,
+    updatedTask,
+    setTasks
+  ) => {
     try {
       const response = await fetch(
         `${import.meta.env.VITE_SERVER_URL}/fetch/edittask`,
@@ -121,6 +217,7 @@ const KanbanBoard = () => {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            boardId,
             columnId,
             taskId,
             content: updatedTask.content,
@@ -147,14 +244,19 @@ const KanbanBoard = () => {
   };
 
   // Function to fetch add a column
-  const fetchAddColumn = async (columnName, setTasks, setColumnOrder) => {
+  const fetchAddColumn = async (
+    columnName,
+    setTasks,
+    setColumnOrder,
+    boardId
+  ) => {
     try {
       const response = await fetch(
         `${import.meta.env.VITE_SERVER_URL}/fetch/addcolumn`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ columnName }),
+          body: JSON.stringify({ columnName, boardId }),
         }
       );
 
@@ -174,10 +276,17 @@ const KanbanBoard = () => {
   };
 
   // Function to fetch delete a column
-  const fetchDeleteColumn = async (columnId, setTasks, setColumnOrder) => {
+  const fetchDeleteColumn = async (
+    columnId,
+    setTasks,
+    setColumnOrder,
+    boardId
+  ) => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_SERVER_URL}/fetch/deletecolumn/${columnId}`,
+        `${
+          import.meta.env.VITE_SERVER_URL
+        }/fetch/deletecolumn/${columnId}/${boardId}`,
         {
           method: 'DELETE',
         }
@@ -190,22 +299,27 @@ const KanbanBoard = () => {
       const data = await response.json();
       console.log('Updated tasks after deleting column:', data.tasks);
 
-      setTasks(data.tasks); // Update state with new tasks list
-      setColumnOrder((prev) => prev.filter((id) => id !== columnId)); // Remove from column order
+      setTasks(data.tasks);
+      setColumnOrder((prev) => prev.filter((id) => id !== columnId));
     } catch (error) {
       console.error('Error deleting column:', error);
     }
   };
 
   // Function to fetch update task column
-  const fetchUpdateTaskColumn = async (taskId, fromColumnId, toColumnId) => {
+  const fetchUpdateTaskColumn = async (
+    taskId,
+    fromColumnId,
+    toColumnId,
+    boardId
+  ) => {
     try {
       const response = await fetch(
         `${import.meta.env.VITE_SERVER_URL}/fetch/updateTaskColumn/${taskId}`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ fromColumnId, toColumnId }),
+          body: JSON.stringify({ fromColumnId, toColumnId, boardId }),
         }
       );
 
@@ -226,37 +340,37 @@ const KanbanBoard = () => {
   };
 
   // Function to add a task to a specific column
-  const addTask = (columnId, content) => {
+  const addTask = (columnId, content, boardId) => {
     if (!content.trim()) return;
 
     setTasks((prev) => {
       const updatedItems = [
         ...prev[columnId].items,
-        { id: Date.now().toString(), content, completed: false },
+        { content, completed: false },
       ];
       return {
         ...prev,
         [columnId]: { ...prev[columnId], items: updatedItems },
       };
     });
-    fetchAddTask(columnId, content, setTasks);
+    fetchAddTask(columnId, content, setTasks, boardId);
     console.log('Updated tasks:', tasks);
   };
 
   // Function to delete a task from a specific column
-  const deleteTask = async (columnId, taskId) => {
-    await fetchDeleteTask(columnId, taskId, setTasks);
+  const deleteTask = async (columnId, taskId, boardId) => {
+    await fetchDeleteTask(columnId, taskId, setTasks, boardId);
 
     setTasks((prev) => ({
       ...prev,
       [columnId]: {
         ...prev[columnId],
-        items: prev[columnId].items.filter((task) => task.id !== taskId),
+        items: prev[columnId].items.filter((task) => task._id !== taskId),
       },
     }));
   };
 
-  const editTask = (columnId, taskId, updatedTask) => {
+  const editTask = (boardId, columnId, taskId, updatedTask) => {
     setTasks((prev) => {
       const updatedItems = prev[columnId].items.map((task) =>
         task._id === taskId ? { ...task, ...updatedTask } : task
@@ -266,12 +380,16 @@ const KanbanBoard = () => {
         [columnId]: { ...prev[columnId], items: updatedItems },
       };
     });
-    fetchEditTask(columnId, taskId, updatedTask, setTasks);
+
+    fetchEditTask(boardId, columnId, taskId, updatedTask, setTasks);
+
+    // Send the update to the server via WebSocket
+    socket.emit('TaskUpdated', { columnId, taskId, updatedTask });
   };
 
   // Function to delete a column
-  const deleteColumn = async (columnId) => {
-    await fetchDeleteColumn(columnId, setTasks, setColumnOrder);
+  const deleteColumn = async (columnId, boardId) => {
+    await fetchDeleteColumn(columnId, setTasks, setColumnOrder, boardId);
 
     setTasks((prev) => {
       const updatedTasks = { ...prev };
@@ -283,16 +401,15 @@ const KanbanBoard = () => {
   };
 
   // Function to add a new column
-  const addColumn = async () => {
+  const addColumn = async (boardId) => {
+    console.log('Adding column for boardId:', boardId);
     if (!newColumnName.trim()) return;
 
     try {
-      // Fetch new column from backend (fetchAddColumn already handles state updates)
-      await fetchAddColumn(newColumnName, setTasks, setColumnOrder);
+      await fetchAddColumn(newColumnName, setTasks, setColumnOrder, boardId);
 
       setNewColumnName('');
 
-      // Auto-scroll to new column
       setTimeout(() => {
         if (boardRef.current) {
           boardRef.current.scrollLeft = boardRef.current.scrollWidth;
@@ -311,7 +428,6 @@ const KanbanBoard = () => {
       const [movedColumn] = newOrder.splice(source.index, 1);
       newOrder.splice(destination.index, 0, movedColumn);
       setColumnOrder(newOrder);
-
       console.log(
         `Moved column ${movedColumn} from position ${source.index} to ${destination.index}`
       );
@@ -333,7 +449,19 @@ const KanbanBoard = () => {
         return;
       }
 
-      await fetchUpdateTaskColumn(movedTask._id, fromColumnId, toColumnId);
+      await fetchUpdateTaskColumn(
+        movedTask._id,
+        fromColumnId,
+        toColumnId,
+        boardId
+      );
+
+      // Emit WebSocket event to inform other users
+      socket.emit('TaskUpdated', {
+        columnId: toColumnId,
+        taskId: movedTask._id,
+        updatedTask: movedTask,
+      });
 
       setTasks((prev) => ({
         ...prev,
@@ -384,6 +512,7 @@ const KanbanBoard = () => {
                         editTask={editTask}
                         activeMenuColumn={activeMenuColumn}
                         setActiveMenuColumn={setActiveMenuColumn}
+                        boardId={boardId}
                       />
                     </div>
                   )}
@@ -398,7 +527,7 @@ const KanbanBoard = () => {
                   onChange={(e) => setNewColumnName(e.target.value)}
                   placeholder='New column name'
                 />
-                <button onClick={addColumn}>+ Add Column</button>
+                <button onClick={() => addColumn(boardId)}>+ Add Column</button>
               </div>
             </div>
           )}

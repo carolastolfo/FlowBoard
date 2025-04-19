@@ -23,6 +23,7 @@ const Task = ({
   editTask,
   tags,
   setTags,
+  boardId,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newContent, setNewContent] = useState(task.content);
@@ -40,7 +41,7 @@ const Task = ({
     if (e) e.preventDefault();
 
     if (newContent.trim()) {
-      editTask(columnId, task._id, {
+      editTask(boardId, columnId, task._id, {
         content: newContent,
         completed: task.completed,
         status: newStatus,
@@ -66,23 +67,22 @@ const Task = ({
       tags: tags,
     };
 
-    editTask(columnId, task._id, updatedTask);
+    editTask(boardId, columnId, task._id, updatedTask);
   };
 
   const handleDateChange = (event) => {
     const newDate = event.target.value;
     setDueDate(newDate);
-    editTask(columnId, task._id, { ...task, due_date: newDate });
+    editTask(boardId, columnId, task._id, { ...task, due_date: newDate });
     setShowDate(false);
   };
 
   const handleDeleteDueDate = () => {
     setDueDate('');
-    editTask(columnId, task._id, { ...task, due_date: '' });
+    editTask(boardId, columnId, task._id, { ...task, due_date: '' });
   };
 
   return (
-    // <Draggable draggableId={task._id} index={index}>
     <Draggable key={task._id} draggableId={String(task._id)} index={index}>
       {(provided) => (
         <div
@@ -141,6 +141,7 @@ const Task = ({
               setTags={setTags}
               tags={task.tags || []}
               editTask={editTask}
+              boardId={boardId}
             />
 
             <button
@@ -153,7 +154,10 @@ const Task = ({
 
             <button
               className='delete-btn'
-              onClick={() => deleteTask(columnId, task._id)}
+              onClick={() => {
+                console.log('Deleting task with boardId:', boardId);
+                deleteTask(columnId, task._id, boardId);
+              }}
               title='Delete Task'
             >
               <FontAwesomeIcon icon={faTrash} />

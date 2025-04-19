@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 
-// Represents a single column in the Kanban board
 const Column = ({
   title,
   tasks,
@@ -13,6 +12,7 @@ const Column = ({
   deleteTask,
   editTask,
   deleteColumn,
+  boardId,
 }) => {
   const [newTask, setNewTask] = useState('');
   const [tags, setTags] = useState([]);
@@ -21,26 +21,19 @@ const Column = ({
     <div className='column'>
       <div className='column-header'>
         <h2>
-          {/* {title.split('\n').map((line) => (
-            <span key={line}>
-              {line}
-              <br />
-            </span>
-          ))} */}
-          {(title || '').split('\n').map((line, index) => (
+          {title.split('\n').map((line, index) => (
             <span key={`${line}-${index}`}>
               {line}
               <br />
             </span>
           ))}
-
         </h2>
 
         <div className='column-right'>
           <button
             className='list-column-btn'
             title='Delete Column'
-            onClick={() => deleteColumn(id)}
+            onClick={() => deleteColumn(id, boardId)}
           >
             <FontAwesomeIcon
               icon={faTimesCircle}
@@ -61,7 +54,7 @@ const Column = ({
         <button
           onClick={() => {
             if (!newTask.trim()) return;
-            addTask(id, newTask);
+            addTask(id, newTask, boardId);
             setNewTask('');
           }}
         >
@@ -72,7 +65,7 @@ const Column = ({
       <Droppable droppableId={id.toString()}>
         {(provided) => (
           <div ref={provided.innerRef} {...provided.droppableProps}>
-            {(tasks && tasks.length > 0) ? (
+            {tasks && tasks.length > 0 ? (
               tasks.map((task, index) => (
                 <Task
                   key={task._id || `${index}`}
@@ -83,28 +76,12 @@ const Column = ({
                   editTask={editTask}
                   tags={tags}
                   setTags={setTags}
+                  boardId={boardId}
                 />
               ))
             ) : (
               <p>No tasks available in the column</p>
             )}
-
-            {/* {tasks.length > 0 ? (
-              tasks.map((task, index) => (
-                <Task
-                  key={task._id || `${index}`}
-                  task={task}
-                  index={index}
-                  columnId={id}
-                  deleteTask={deleteTask}
-                  editTask={editTask}
-                  tags={tags}
-                  setTags={setTags}
-                />
-              ))
-            ) : (
-              <p>No tasks available in the column</p>
-            )} */}
             {provided.placeholder}
           </div>
         )}

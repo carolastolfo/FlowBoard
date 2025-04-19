@@ -15,7 +15,7 @@ function App() {
         <Route path='/' element={<Homepage />} />
         <Route path='/login' element={<Login />} />
         <Route path='/boards' element={<Boards />} />
-        <Route path='/board' element={<KanbanBoard />} />
+        <Route path='/board/:boardId' element={<KanbanBoard />} />
         <Route path='/register' element={<Register />} />
         <Route path='/joinRequestManage' element={<JoinRequestManage />} />
       </Routes>

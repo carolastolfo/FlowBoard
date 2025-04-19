@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import "../styles/login.css"; 
 
 const Login = () => {
@@ -47,9 +47,10 @@ const Login = () => {
   return (
     <div className="login-container">
       <header className="login-header">
-        <h1 className="login-title">Login to FlowBoard</h1>
       </header>
       <form onSubmit={handleSubmit} className="login-form">
+        <h1 className="login-title">FlowBoard</h1>
+        <h2 className="form-title">Login to continue</h2>
         <input
           type="text"
           placeholder="Email"
@@ -69,7 +70,13 @@ const Login = () => {
         <button type="submit" className="login-button">Login</button>
       </form>
       {message && <div className={`login-message ${message.includes('Error') ? 'error' : ''}`}>{message}</div>} {/* Display message */}
+      <div className="auth-redirect">
+        Don't have an account? <Link to="/register" className="auth-link">Sign up here</Link>
+      </div>
     </div>
+
+
+    
   );
 };
 

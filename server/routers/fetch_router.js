@@ -57,15 +57,23 @@ router.put("/updateTaskColumn/:taskId", async (req, res) => {
 
 // Search boards by Name
 router.get("/board/:boardName", async (req, res) => {
-    console.log('search a board')
+    console.log('Searching boards');
     const boardName = req.params.boardName;
-    const board = await Board.findOne({ name: { $regex: boardName, $options: "i" } }); // case insensitive
 
-    if (!board) {
-        return res.status(404).json({ message: "Board not found" })
+    try {
+        const boards = await Board.find({ name: { $regex: boardName, $options: "i" } }); // case-insensitive search
+
+        if (!boards.length) {
+            return res.status(404).json({ message: "No matching boards found" });
+        }
+
+        res.json(boards);
+    } catch (error) {
+        console.error("Error fetching boards:", error);
+        res.status(500).json({ message: "Server error" });
     }
-    res.json(board)
 });
+
 
 // Request to join team board
 router.post("/boards/:boardId/join", verifyToken, async (req, res) => {
@@ -171,13 +179,13 @@ router.put("/joinRequests/:requestId/accept", verifyToken, async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        // Add the board to user's boards if not already there
+        // Add the board to user's boards
         if (!user.boards.includes(board._id)) {
             user.boards.push(board._id);
             await user.save();
         }
 
-        // Add the user to board's teamMembers if not already there
+        // Add the user to board's teamMembers
         if (!board.teamMembers.includes(user._id)) {
             board.teamMembers.push(user._id);
             await board.save();
@@ -186,6 +194,9 @@ router.put("/joinRequests/:requestId/accept", verifyToken, async (req, res) => {
         // Update the join request status to accepted
         request.status = "accepted";
         await request.save();
+
+        // Emit socket event to all clients
+        req.app.locals.io.emit("boardCreated", board);
 
         res.json({ message: "User added to the board", board });
     } catch (error) {
@@ -284,6 +295,9 @@ router.post("/addtask", (req, res) => {
             return taskDocument.save().then(() => {
                 console.log("Task added:", newTask);
 
+                 // Emit socket event to all clients
+                req.app.locals.io.emit("TaskSaved", { newTask, columnId });
+
                 res.status(201).json({
                     message: "Task added successfully",
                     task: newTask,
@@ -324,6 +338,8 @@ router.delete("/deletetask/:columnId/:taskId/:boardId", (req, res) => {
         })
         .then(savedDoc => {
             console.log(`Task with ID ${taskId} was successfully deleted from column ${columnId}`);
+            // Emit socket event to all clients
+            req.app.locals.io.emit("TaskDeleted", taskId);
             res.json({ message: "Task deleted", tasks: savedDoc.tasks });
         })
         .catch(error => {
@@ -351,6 +367,7 @@ router.put("/edittask", (req, res) => {
             const column = taskDocument.tasks.get(columnId);
             let taskFound = false;
 
+            // Update the task and store the updated task object
             column.items = column.items.map((task) => {
                 if (task._id.toString() === taskId) {
                     taskFound = true;
@@ -359,6 +376,7 @@ router.put("/edittask", (req, res) => {
                     task.status = status;
                     task.due_date = due_date ? new Date(due_date) : null;
                     task.tags = tags ?? null;
+                    taskFound = task;
                 }
                 return task;
             });
@@ -366,11 +384,17 @@ router.put("/edittask", (req, res) => {
             if (!taskFound) {
                 return res.status(404).json({ message: "Task not found" });
             }
-
-            return taskDocument.save();
+            return taskDocument.save().then((savedDoc) => ({ savedDoc, taskFound }));
         })
-        .then((savedDoc) => {
-            console.log(`Task ${taskId} in column ${columnId} updated`);
+        .then(({ savedDoc, taskFound }) => {
+          console.log(`Task ${taskId} in column ${columnId} updated`);
+    
+          // Emit the update to all clients (except sender)
+          req.app.locals.io.emit("TaskUpdated", {
+            columnId,
+            taskId,
+            updatedTask: taskFound,
+          });
             res.json({ message: "Task updated successfully", tasks: savedDoc.tasks });
         })
         .catch((err) => {
@@ -406,6 +430,8 @@ router.post("/addcolumn", (req, res) => {
             task.save()
                 .then(() => {
                     console.log(`New column added: ${columnName} (ID: ${newColumnId})`);
+                    // Emit socket event to all clients
+                    req.app.locals.io.emit("columnSaved", newColumnId);
                     res.status(201).json({ message: "Column added", tasks: task.tasks });
                 })
                 .catch((error) => {
@@ -444,6 +470,8 @@ router.delete("/deletecolumn/:columnId/:boardId", (req, res) => {
             task.save()
                 .then(() => {
                     console.log(`Column ${columnId} deleted successfully`);
+                    // Emit socket event to all clients
+                    req.app.locals.io.emit("columnDeleted", columnId);
                     res.json({ message: "Column deleted", tasks: task.tasks });
                 })
                 .catch((error) => {

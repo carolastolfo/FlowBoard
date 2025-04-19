@@ -65,7 +65,7 @@ const Column = ({
       <Droppable droppableId={id.toString()}>
         {(provided) => (
           <div ref={provided.innerRef} {...provided.droppableProps}>
-            {tasks.length > 0 ? (
+            {tasks && tasks.length > 0 ? (
               tasks.map((task, index) => (
                 <Task
                   key={task._id || `${index}`}

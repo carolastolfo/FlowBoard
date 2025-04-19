@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import Column from './Column';
+import socket from '../socket';
+import { produce } from 'immer';
 import '../styles/KanbanBoardStyles.css';
 import { useParams } from 'react-router-dom';
 
@@ -12,12 +14,20 @@ const KanbanBoard = () => {
   const boardRef = useRef(null);
   const [activeMenuColumn, setActiveMenuColumn] = useState(null);
   const { boardId } = useParams();
+  // const boardId = location.state?.boardId;
 
   const defaultColumns = {
     'col-1': { title: 'To Do', items: [] },
     'col-2': { title: 'Doing', items: [] },
     'col-3': { title: 'Done', items: [] },
   };
+
+  useEffect(() => {
+    if (boardId) {
+      socket.emit('joinBoard', boardId);
+      console.log('Emitted joinBoard with', boardId);
+    }
+  }, [boardId]);
 
   useEffect(() => {
     if (boardId) {
@@ -37,6 +47,78 @@ const KanbanBoard = () => {
         boardRef.current.scrollWidth / 2 - boardRef.current.clientWidth / 2;
     }
   }, [tasks]);
+
+  // Websocket useEffect
+  useEffect(() => {
+    // Ensure socket is connected
+    if (!socket.connected) socket.connect();
+    console.log('Socket connected in KanbanBoard');
+
+    const handleTaskSaved = (data) => {
+      console.log('Received TaskSaved event:', data);
+      const { newTask, columnId } = data;
+
+      setTasks((prevTasks) => {
+        const column = prevTasks[columnId] || { title: columnId, items: [] };
+
+        const updatedColumn = {
+          ...column,
+          items: [newTask, ...column.items],
+        };
+
+        return {
+          ...prevTasks,
+          [columnId]: updatedColumn,
+        };
+      });
+    };
+
+    const handleTaskDeleted = (deletedTaskId) => {
+      console.log('Received taskDeleted event:', deletedTaskId);
+      setTasks((prevTasks) =>
+        produce(prevTasks, (draft) => {
+          // Loop through all columns
+          Object.keys(draft).forEach((columnId) => {
+            // Find the task in the current column's items array
+            const index = draft[columnId].items.findIndex(
+              (task) => task._id === deletedTaskId
+            );
+            if (index !== -1) {
+              // Remove the task from the column if found
+              draft[columnId].items.splice(index, 1);
+            }
+          });
+        })
+      );
+    };
+
+    const handleTaskUpdated = (data) => {
+      console.log('Received TaskUpdated event:', data);
+      const { columnId, taskId, updatedTask } = data;
+
+      // Update the tasks state with the updated task information
+      setTasks((prevTasks) => {
+        const updatedItems = prevTasks[columnId].items.map((task) =>
+          task._id === taskId ? { ...task, ...updatedTask } : task
+        );
+
+        return {
+          ...prevTasks,
+          [columnId]: { ...prevTasks[columnId], items: updatedItems },
+        };
+      });
+    };
+
+    socket.on('TaskSaved', handleTaskSaved);
+    socket.on('TaskDeleted', handleTaskDeleted);
+    socket.on('TaskUpdated', handleTaskUpdated);
+
+    return () => {
+      socket.off('TaskSaved', handleTaskSaved);
+      socket.off('TaskDeleted', handleTaskDeleted);
+      socket.off('TaskUpdated', handleTaskUpdated);
+    };
+  }, []);
 
   // Function to fetch task
   const fetchTask = async () => {
@@ -233,7 +315,7 @@ const KanbanBoard = () => {
   ) => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_SERVER_URL}/fetch/updateTaskColumn/${taskId}`,
+        `${import.meta.env.VITE_SERVER_URL}/fetch/updateTaskColumn`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -298,7 +380,11 @@ const KanbanBoard = () => {
         [columnId]: { ...prev[columnId], items: updatedItems },
       };
     });
+
     fetchEditTask(boardId, columnId, taskId, updatedTask, setTasks);
+
+    // Send the update to the server via WebSocket
+    socket.emit('TaskUpdated', { columnId, taskId, updatedTask });
   };
 
   // Function to delete a column
@@ -342,7 +428,6 @@ const KanbanBoard = () => {
       const [movedColumn] = newOrder.splice(source.index, 1);
       newOrder.splice(destination.index, 0, movedColumn);
       setColumnOrder(newOrder);
-
       console.log(
         `Moved column ${movedColumn} from position ${source.index} to ${destination.index}`
       );
@@ -370,6 +455,13 @@ const KanbanBoard = () => {
         toColumnId,
         boardId
       );
+
+      // Emit WebSocket event to inform other users
+      socket.emit('TaskUpdated', {
+        columnId: toColumnId,
+        taskId: movedTask._id,
+        updatedTask: movedTask,
+      });
 
       setTasks((prev) => ({
         ...prev,

@@ -36,7 +36,8 @@ router.post("/login", async (req, res) => {
             user: {
                 id: user._id,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                boards: [],
             }
         });
     } catch (error) {
@@ -44,6 +45,18 @@ router.post("/login", async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 });
+
+// Logout route
+router.post("/logout", async (req, res) => {
+    try {
+      // the server doesn't need to do anything
+      // as the client side will remove the token from localStorage
+      res.status(200).json({ message: "Logout successful" });
+    } catch (error) {
+      console.error("Logout error:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
 
 // Registration route
 router.post("/register", async (req, res) => {
@@ -67,7 +80,8 @@ router.post("/register", async (req, res) => {
             username,
             email,
             password: hashedPassword,
-            role: "user" // Use provided role or default to "user"
+            role: "user", // Use provided role or default to "user"
+            boards: [],
         });
         
         // Save the user to the database
@@ -83,7 +97,8 @@ router.post("/register", async (req, res) => {
                 id: newUser._id,
                 username: newUser.username,
                 email: newUser.email,
-                role: newUser.role
+                role: newUser.role,
+                boards: newUser.boards,
             }
         });
         console.log("User registered")

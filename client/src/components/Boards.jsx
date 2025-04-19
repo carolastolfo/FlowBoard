@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
-import '../styles/boards.css';
+import socket from "../socket";
+import "../styles/boards.css";
+
 
 const Boards = ({ state }) => {
   const navigate = useNavigate();
@@ -14,6 +16,8 @@ const Boards = ({ state }) => {
   const token = localStorage.getItem('token');
   const userId = token ? jwtDecode(token).userId : null;
   console.log(import.meta.env.VITE_SERVER_URL);
+  console.log(import.meta.env.VITE_SERVER_URL)
+
 
   useEffect(() => {
     // fetch boards
@@ -34,11 +38,37 @@ const Boards = ({ state }) => {
         setLoading(false);
       }
     };
-
-    if (token) fetchBoards(); // only tries to get boards if user is logged in
+    if (token) fetchBoards();  // only tries to get boards if user is logged in
   }, [token]);
 
-  // create boards function
+  // Websocket useEffect
+  useEffect(() => {
+    // Ensure socket is connected
+    if (!socket.connected) socket.connect();
+    console.log("Socket connected");
+
+    const handleBoardCreated = (newBoard) => {
+      console.log("Received boardCreated event:", newBoard);
+      setBoards((prevBoards) => [newBoard, ...prevBoards]);
+    };
+
+    const handleBoardDeleted = (deletedBoardId) => {
+      console.log("Received boardDeleted event:", deletedBoardId);
+      setBoards((prevBoards) =>
+        prevBoards.filter((board) => board._id !== deletedBoardId)
+      );
+    };
+
+    socket.on("boardCreated", handleBoardCreated);
+    socket.on("boardDeleted", handleBoardDeleted);
+
+    return () => {
+      socket.off("boardCreated", handleBoardCreated);
+      socket.off("boardDeleted", handleBoardDeleted);
+    };
+  }, []);
+
+  // create board function
   const createBoard = async () => {
     if (!boardName || !backgroundColor) {
       setError('Both board name and background color are required.');
@@ -62,7 +92,34 @@ const Boards = ({ state }) => {
       setBoardName(''); // Clear input fields after creation
       setBackgroundColor('');
     } catch (error) {
-      console.error('Error creating board:', error);
+      console.error("Error creating board:", error);
+    }
+  };
+
+  // delete board function
+  const deleteBoard = async (boardId, e) => {
+    e.stopPropagation(); // Prevent navigating to the board when clicking delete
+
+    if (window.confirm("Are you sure you want to delete this board?")) {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/board/${boardId}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          // Remove the deleted board from state
+          setBoards(boards.filter(board => board._id !== boardId));
+        } else {
+          const data = await response.json();
+          setError(data.message);
+        }
+      } catch (error) {
+        console.error("Error deleting board:", error);
+        setError("Failed to delete board");
+      }
     }
   };
 
@@ -98,7 +155,7 @@ const Boards = ({ state }) => {
 
       const data = await response.json();
       console.log(data);
-      setBoards([data]);
+      setBoards(data);
       setError('');
     } catch (err) {
       setBoards([]);
@@ -109,8 +166,8 @@ const Boards = ({ state }) => {
   // function to redirect to board
   const handleRedirect = (boardId) => {
     setTimeout(() => {
-      // navigate("/board/"); // redirect user and maybe later pass on boardid as param
-      navigate(`/board/${boardId}`);
+      navigate("/board", { state: { boardId }}); // redirect user and maybe later pass on boardid as param
+      socket.emit("joinBoard", boardId);
     }, 1000);
   };
 
@@ -141,27 +198,52 @@ const Boards = ({ state }) => {
     }
   };
 
+  // logout function
+  const handleLogout = async () => {
+    try {
+      await fetch(`${import.meta.env.VITE_SERVER_URL}/user/logout`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+
+      // remove token from localStorage
+      localStorage.removeItem("token");
+
+      // Redirect to login page or home page
+      navigate("/");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
   return (
     <div className='boards-container'>
       {/* Header */}
       <div className='header'>
         <h1>Your Boards</h1>
-        <div className='search-container'>
-          <input
-            placeholder='Search by Board Name'
-            className='search-input'
-            value={searchName}
-            onChange={(e) => setSearchName(e.target.value)}
-          />
-          <button onClick={handleSearch} className='search-button'>
-            Search
-          </button>
-          {/* Manage Requests button */}
-          <button
-            className='search-button'
-            onClick={() => navigate('/joinRequestManage')}
-          >
-            Manage Requests
+        <div className="header-controls">
+          <div className="search-container">
+            <input
+              placeholder="Search by Board Name"
+              className="search-input"
+              value={searchName}
+              onChange={(e) => setSearchName(e.target.value)}
+            />
+            <button onClick={handleSearch} className="search-button">
+              Search
+            </button>
+            {/* Manage Requests button */}
+            <button
+              className="search-button"
+              onClick={() => navigate("/joinRequestManage")}
+            >
+              Manage Requests
+            </button>
+          </div>
+          <button className="logout-button" onClick={handleLogout}>
+            Logout
           </button>
         </div>
       </div>
@@ -176,7 +258,16 @@ const Boards = ({ state }) => {
               style={{ backgroundColor: board.backgroundColor }}
               onClick={() => handleRedirect(board._id)} // click to go to /board
             >
-              <h2>{board.name}</h2>
+              <div className="board-controls">
+                <h2>{board.name}</h2>
+                {board.ownerId === userId && (
+                  <button
+                    className="delete-board-button"
+                    onClick={(e) => deleteBoard(board._id, e)}
+                  >
+                    ❌
+                  </button>
+                )}</div>
               <p>Team Members: {board.teamMembers.length}</p>
               {/* If current user is the owner of a board, show Owner badge */}
               {board.ownerId === userId && (

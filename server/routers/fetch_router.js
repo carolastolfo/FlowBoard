@@ -3,11 +3,11 @@ import User from "../models/user.js";
 import Board from "../models/board.js";
 import JoinRequest from "../models/joinRequest.js";
 import { verifyToken } from "../middleware/auth.js";
-import Task from "../models/task.js";
-// import Task, { defaultColumns } from "../models/task.js";
+import Task, { defaultColumns } from "../models/task.js";
 
 const router = express.Router();
 
+// Version ok
 // Route to Move a task
 router.put("/updateTaskColumn/:taskId", async (req, res) => {
     const { taskId } = req.params;

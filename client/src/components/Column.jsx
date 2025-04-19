@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 
-// Represents a single column in the Kanban board
 const Column = ({
   title,
   tasks,
@@ -13,6 +12,7 @@ const Column = ({
   deleteTask,
   editTask,
   deleteColumn,
+  boardId,
 }) => {
   const [newTask, setNewTask] = useState('');
   const [tags, setTags] = useState([]);
@@ -21,12 +21,6 @@ const Column = ({
     <div className='column'>
       <div className='column-header'>
         <h2>
-          {/* {title.split('\n').map((line) => (
-            <span key={line}>
-              {line}
-              <br />
-            </span>
-          ))} */}
           {title.split('\n').map((line, index) => (
             <span key={`${line}-${index}`}>
               {line}
@@ -39,7 +33,7 @@ const Column = ({
           <button
             className='list-column-btn'
             title='Delete Column'
-            onClick={() => deleteColumn(id)}
+            onClick={() => deleteColumn(id, boardId)}
           >
             <FontAwesomeIcon
               icon={faTimesCircle}
@@ -60,7 +54,7 @@ const Column = ({
         <button
           onClick={() => {
             if (!newTask.trim()) return;
-            addTask(id, newTask);
+            addTask(id, newTask, boardId);
             setNewTask('');
           }}
         >
@@ -82,6 +76,7 @@ const Column = ({
                   editTask={editTask}
                   tags={tags}
                   setTags={setTags}
+                  boardId={boardId}
                 />
               ))
             ) : (

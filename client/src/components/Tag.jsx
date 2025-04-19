@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBookmark, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import '../styles/KanbanBoardStyles.css';
 
-const Tag = ({ taskId, task, columnId, editTask, tags, setTags }) => {
+const Tag = ({ boardId, taskId, task, columnId, editTask, tags, setTags }) => {
   const tagColors = ['#EB1660', '#4F9D69', '#E28413'];
   const [showModal, setShowModal] = useState(false);
   const [tagText, setTagText] = useState('');
@@ -26,7 +26,7 @@ const Tag = ({ taskId, task, columnId, editTask, tags, setTags }) => {
       setTagText('');
       setShowModal(false);
 
-      editTask(columnId, task._id, {
+      editTask(boardId, columnId, task._id, {
         ...task,
         tags: updatedTags,
       });
@@ -36,13 +36,12 @@ const Tag = ({ taskId, task, columnId, editTask, tags, setTags }) => {
   const handleRemoveTag = (tagToRemove) => {
     const updatedTags = tags.filter((tag) => tag !== tagToRemove);
     setTags(updatedTags);
-    editTask(columnId, task._id, {
+    editTask(boardId, columnId, task._id, {
       ...task,
       tags: updatedTags,
     });
   };
 
-  // const taskTags = (tags || []).filter((tag) => tag.taskId === taskId);
   const taskTags = tags || [];
 
   return (
@@ -66,13 +65,13 @@ const Tag = ({ taskId, task, columnId, editTask, tags, setTags }) => {
                   <span
                     key={`${taskId}-${index}`}
                     style={{
-                      // backgroundColor: tag.color,
                       backgroundColor: tagColors[index % tagColors.length],
                       padding: '5px 10px',
                       margin: '5px',
                       borderRadius: '20px',
                       color: '#fff',
-                      display: 'block',
+                      display: 'inline-flex',
+                      alignItems: 'center',
                     }}
                   >
                     {tag}

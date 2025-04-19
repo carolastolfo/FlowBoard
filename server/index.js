@@ -14,7 +14,7 @@ const app = express();
 const PORT = process.env.PORT || 8000;
 
 const corsOptions = {
-  origin: "http://localhost:5173", 
+  origin: process.env.VITE_CLIENT_URL, 
   methods: ["GET", "POST", "DELETE", "PUT"],
   credentials: true
 };
@@ -24,7 +24,7 @@ const server = http.createServer(app); // create HTTP server for socket.io
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173", // allow frontend 
+    origin: process.env.VITE_CLIENT_URL, // allow frontend 
     methods: ["GET", "POST", "DELETE", "PUT"],
     credentials: true, //  can't to use *
   }

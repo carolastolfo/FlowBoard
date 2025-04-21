@@ -31,7 +31,7 @@ const Column = ({
 
         <div className='column-right'>
           <button
-            className='list-column-btn'
+            className='delete-column-btn'
             title='Delete Column'
             onClick={() => deleteColumn(id, boardId)}
           >

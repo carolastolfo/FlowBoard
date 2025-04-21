@@ -5,6 +5,12 @@ import socket from '../socket';
 import { produce } from 'immer';
 import '../styles/KanbanBoardStyles.css';
 import { useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faQuestionCircle,
+  faTimesCircle,
+} from '@fortawesome/free-solid-svg-icons';
 
 // Represents the entire board with multiple columns
 const KanbanBoard = () => {
@@ -14,7 +20,7 @@ const KanbanBoard = () => {
   const boardRef = useRef(null);
   const [activeMenuColumn, setActiveMenuColumn] = useState(null);
   const { boardId } = useParams();
-  // const boardId = location.state?.boardId;
+  const [showModal, setShowModal] = useState(false);
 
   const defaultColumns = {
     'col-1': { title: 'To Do', items: [] },
@@ -39,13 +45,6 @@ const KanbanBoard = () => {
 
   useEffect(() => {
     setColumnOrder(Object.keys(tasks));
-  }, [tasks]);
-
-  useEffect(() => {
-    if (boardRef.current) {
-      boardRef.current.scrollLeft =
-        boardRef.current.scrollWidth / 2 - boardRef.current.clientWidth / 2;
-    }
   }, [tasks]);
 
   // Websocket useEffect
@@ -480,59 +479,100 @@ const KanbanBoard = () => {
   };
 
   return (
-    <div className='kanban-container'>
-      <h2>My Board</h2>
-      <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId='board' direction='horizontal' type='COLUMN'>
-          {(provided) => (
-            <div
-              className='kanban-board'
-              ref={(el) => {
-                boardRef.current = el;
-                provided.innerRef(el);
-              }}
-              {...provided.droppableProps}
-            >
-              {columnOrder.map((columnId, index) => (
-                <Draggable key={columnId} draggableId={columnId} index={index}>
-                  {(provided) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                    >
-                      <Column
-                        key={columnId}
-                        id={columnId}
-                        title={tasks[columnId].title}
-                        tasks={tasks[columnId].items}
-                        addTask={addTask}
-                        deleteTask={deleteTask}
-                        deleteColumn={deleteColumn}
-                        editTask={editTask}
-                        activeMenuColumn={activeMenuColumn}
-                        setActiveMenuColumn={setActiveMenuColumn}
-                        boardId={boardId}
-                      />
-                    </div>
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
+    <div className='kanban-wrapper'>
+      <div className='navbar'>
+        <h3>FlowBoard</h3>
+        <div className='nav-links'>
+          <Link to='/boards'>Boards</Link>
+          <Link to='/joinRequestManage'>Request manage</Link>
+          <button className='help-btn' onClick={() => setShowModal(true)}>
+            <FontAwesomeIcon icon={faQuestionCircle} />
+          </button>
 
-              <div className='add-column'>
-                <input
-                  type='text'
-                  value={newColumnName}
-                  onChange={(e) => setNewColumnName(e.target.value)}
-                  placeholder='New column name'
-                />
-                <button onClick={() => addColumn(boardId)}>+ Add Column</button>
+          {showModal && (
+            <div className='modal-overlay'>
+              <div className='modal-content-tutorial'>
+                <div className='modal-header'>
+                  <button
+                    className='close-btn'
+                    onClick={() => setShowModal(false)}
+                  >
+                    <FontAwesomeIcon
+                      icon={faTimesCircle}
+                      style={{ fontSize: '20px' }}
+                    />
+                  </button>
+                </div>
+                <h2>Kanban Board User Guide</h2>
+                <img src='../../public/tutorial.png' alt='Tutorial image' />
               </div>
             </div>
           )}
-        </Droppable>
-      </DragDropContext>
+        </div>
+      </div>
+
+      <div className='kanban-container'>
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable droppableId='board' direction='horizontal' type='COLUMN'>
+            {(provided) => (
+              <div
+                className='kanban-board'
+                ref={(el) => {
+                  boardRef.current = el;
+                  provided.innerRef(el);
+                }}
+                {...provided.droppableProps}
+              >
+                {columnOrder.map((columnId, index) => (
+                  <Draggable
+                    key={columnId}
+                    draggableId={columnId}
+                    index={index}
+                  >
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                      >
+                        <Column
+                          key={columnId}
+                          id={columnId}
+                          title={tasks[columnId].title}
+                          tasks={tasks[columnId].items}
+                          addTask={addTask}
+                          deleteTask={deleteTask}
+                          deleteColumn={deleteColumn}
+                          editTask={editTask}
+                          activeMenuColumn={activeMenuColumn}
+                          setActiveMenuColumn={setActiveMenuColumn}
+                          boardId={boardId}
+                        />
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+
+                <div className='add-column'>
+                  <input
+                    type='text'
+                    value={newColumnName}
+                    onChange={(e) => setNewColumnName(e.target.value)}
+                    placeholder='New column name'
+                  />
+                  <button onClick={() => addColumn(boardId)}>
+                    + Add Column
+                  </button>
+                </div>
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+      </div>
+      <footer className='kanban-footer'>
+        <p>© 2025 FlowBoard. All rights reserved.</p>
+      </footer>
     </div>
   );
 };

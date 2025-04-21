@@ -1,10 +1,47 @@
 .boards-container {
   width: 90vw;
   min-height: 100vh;
+  margin-top: 10vh;
+  margin-bottom: 5vh;
   padding: 20px;
   background: rgba(255, 255, 255, 0.6);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
+}
+
+.navbar {
+  width: 100%; 
+  height: 40px; 
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #6D72C3;
+  color: white; 
+  position: fixed;
+  padding: 0 50px;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+.nav-links {
+  display: flex;
+}
+
+.nav-links a {
+  display: flex;
+  height: 40px; 
+  width: 130px; 
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 14px;
+  text-decoration: none;
+  transition: background-color 0.5s ease;
+}
+
+.nav-links a:hover {
+  background-color: #000000;
 }
 
 .header {
@@ -28,16 +65,18 @@
 .logout-button {
   padding: 8px 15px;
   border: none;
-  background-color: #e74c3c;
+  border-radius: 0;
+
   color: white;
   font-size: 14px;
-  border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
 }
 
 .logout-button:hover {
   background-color: #c0392b;
+
+
 }
 
 /* Wrap the input and button in a container to apply flexbox */
@@ -49,9 +88,18 @@
 .search-input {
   padding: 8px;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 8px;
   outline: none;
-  width: 200px;
+  width: 100%;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #003366;
+  transition: border-color 0.3s ease;
+}
+
+.search-input:focus {
+  border-color: #6D72C3;
+  box-shadow: 0 0 0 3px rgba(109, 114, 195, 0.2);
 }
 
 .search-button {
@@ -65,7 +113,8 @@
 }
 
 .search-button:hover {
-  background-color: #0056b3;
+  background-color: #5C60A5;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Grid for boards */
@@ -234,6 +283,18 @@
   color: rgba(255, 255, 255, 0.8);
 }
 
+.auth-link {
+  color: #6D72C3;
+  text-decoration: underline;
+  font-weight: bold;
+  transition: color 0.3s;
+}
+
+.auth-link:hover {
+  color: #5C60A5;
+}
+
+
 /* Media Queries for responsiveness */
 @media (max-width: 1200px) {
   .boards-grid {
@@ -297,3 +358,4 @@
     font-size: 18px;
   }
 }
+

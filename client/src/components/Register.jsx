@@ -45,7 +45,6 @@ const Register = () => {
 
         // Store the JWT token in localStorage
         localStorage.setItem("token", data.token);
-        localStorage.setItem("userId", data.user.id);
         localStorage.setItem("username", data.user.username)
 
         // Redirect to boards page after successful registration

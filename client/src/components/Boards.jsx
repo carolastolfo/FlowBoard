@@ -211,7 +211,6 @@ const Boards = () => {
       
       // remove token from localStorage
       localStorage.removeItem("token");
-      localStorage.removeItem('userId')
       localStorage.removeItem('username')
       
       // Redirect to login page or home page

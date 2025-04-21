@@ -536,7 +536,10 @@ const KanbanBoard = () => {
                   </button>
                 </div>
                 <h2>Kanban Board User Guide</h2>
-                <img src='../../public/tutorial.png' alt='Tutorial image' />
+                <img
+                  src='../../public/assets/tutorial.png'
+                  alt='Tutorial image'
+                />
               </div>
             </div>
           )}

@@ -4,14 +4,13 @@ import "../styles/register.css";
 
 const Register = () => {
   const location = useLocation();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState(location.state?.email || "");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  console.log(import.meta.env.VITE_SERVER_URL)
-
+  console.log(import.meta.env.VITE_SERVER_URL);
 
   useEffect(() => {
     if (location.state?.email) {
@@ -24,26 +23,35 @@ const Register = () => {
     setMessage(""); // clear previous message
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/user/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            username, email, password
-        }),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_SERVER_URL}/user/register`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username,
+            email,
+            password,
+          }),
+        }
+      );
 
       const data = await response.json();
 
-      console.log(data)
+      console.log(data);
 
       if (response.ok) {
         setMessage("Registration successful!");
 
+        // Store the JWT token in localStorage
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("userId", data.user.id);
+        localStorage.setItem("username", data.user.username)
+
         // Redirect to boards page after successful registration
         setTimeout(() => {
-          navigate("/boards"); 
+          navigate("/boards");
         }, 1000); // Delay for UX
-
       } else {
         setMessage(`Error: ${data.message || "Registration failed"}`);
       }
@@ -55,11 +63,10 @@ const Register = () => {
 
   return (
     <div className="register-container">
-      <header className="register-header">
-      </header>
+      <header className="register-header"></header>
       <form onSubmit={handleSubmit} className="register-form">
         <h1 className="register-title">FlowBoard</h1>
-        <h2 className='form-title'>Sign up to continue</h2>
+        <h2 className="form-title">Sign up to continue</h2>
         <input
           type="text"
           placeholder="Username"
@@ -75,7 +82,6 @@ const Register = () => {
           onChange={(e) => setEmail(e.target.value)}
           required
           className="register-input"
-
         />
         <input
           type="password"
@@ -85,11 +91,24 @@ const Register = () => {
           required
           className="register-input"
         />
-        <button type="submit" className="register-button">Sign up</button>
+        <button type="submit" className="register-button">
+          Sign up
+        </button>
       </form>
-      {message && <div className={`register-message ${message.includes("Error") ? "error" : ""}`}>{message}</div>}
+      {message && (
+        <div
+          className={`register-message ${
+            message.includes("Error") ? "error" : ""
+          }`}
+        >
+          {message}
+        </div>
+      )}
       <div className="auth-redirect">
-        Already have an account? <Link to="/login" className="auth-link">Log in here</Link>
+        Already have an account?{" "}
+        <Link to="/login" className="auth-link">
+          Log in here
+        </Link>
       </div>
     </div>
   );

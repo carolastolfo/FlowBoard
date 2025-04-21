@@ -6,7 +6,7 @@ import "../styles/boards.css";
 
 
 
-const Boards = ({ state }) => {
+const Boards = () => {
   const navigate = useNavigate();
   const [searchName, setSearchName] = useState('');
   const [boards, setBoards] = useState([]);
@@ -15,6 +15,7 @@ const Boards = ({ state }) => {
   const [boardName, setBoardName] = useState('');
   const [backgroundColor, setBackgroundColor] = useState('');
   const token = localStorage.getItem('token');
+  const username = localStorage.getItem('username');
   const userId = token ? jwtDecode(token).userId : null;
 
   useEffect(() => {
@@ -210,6 +211,8 @@ const Boards = ({ state }) => {
       
       // remove token from localStorage
       localStorage.removeItem("token");
+      localStorage.removeItem('userId')
+      localStorage.removeItem('username')
       
       // Redirect to login page or home page
       navigate("/");
@@ -234,7 +237,7 @@ const Boards = ({ state }) => {
       </div>
       {/* Header */}
       <div className='header'>
-        <h1>Your Boards</h1>
+        <h1>{username}'s Boards</h1>
         <div className="header-controls">
           <div className="search-container">
             <input

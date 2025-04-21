@@ -80,7 +80,7 @@ const Column = ({
                 />
               ))
             ) : (
-              <p>No tasks available in the column</p>
+              <p style={{ color: 'black' }}>No tasks available in the column</p>
             )}
             {provided.placeholder}
           </div>

@@ -11,6 +11,7 @@ import {
   faQuestionCircle,
   faTimesCircle,
 } from '@fortawesome/free-solid-svg-icons';
+import tutorial from '../assets/tutorial.png';
 
 // Represents the entire board with multiple columns
 const KanbanBoard = () => {
@@ -541,7 +542,7 @@ const KanbanBoard = () => {
                   </button>
                 </div>
                 <h2>Kanban Board User Guide</h2>
-                <img src='../../public/tutorial.png' alt='Tutorial image' />
+                <img src={tutorial} alt='Tutorial image' />
               </div>
             </div>
           )}

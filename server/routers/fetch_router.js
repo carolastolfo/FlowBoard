@@ -431,7 +431,7 @@ router.post("/addcolumn", (req, res) => {
                 .then(() => {
                     console.log(`New column added: ${columnName} (ID: ${newColumnId})`);
                     // Emit socket event to all clients
-                    req.app.locals.io.emit("columnSaved", newColumnId);
+                    req.app.locals.io.emit("ColumnSaved", newColumnId, columnName);
                     res.status(201).json({ message: "Column added", tasks: task.tasks });
                 })
                 .catch((error) => {
@@ -471,7 +471,7 @@ router.delete("/deletecolumn/:columnId/:boardId", (req, res) => {
                 .then(() => {
                     console.log(`Column ${columnId} deleted successfully`);
                     // Emit socket event to all clients
-                    req.app.locals.io.emit("columnDeleted", columnId);
+                    req.app.locals.io.emit("ColumnDeleted", columnId);
                     res.json({ message: "Column deleted", tasks: task.tasks });
                 })
                 .catch((error) => {

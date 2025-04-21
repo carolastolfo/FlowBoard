@@ -21,6 +21,8 @@ const KanbanBoard = () => {
   const [activeMenuColumn, setActiveMenuColumn] = useState(null);
   const { boardId } = useParams();
   const [showModal, setShowModal] = useState(false);
+  const token = localStorage.getItem('token');
+
 
   const defaultColumns = {
     'col-1': { title: 'To Do', items: [] },
@@ -510,13 +512,16 @@ const KanbanBoard = () => {
     }
   };
 
+  if (!token) return <h2>Please log in <Link to="/login" className="auth-link">here</Link> to see your board.</h2>;
+
+
   return (
     <div className='kanban-wrapper'>
       <div className='navbar'>
         <h3>FlowBoard</h3>
         <div className='nav-links'>
           <Link to='/boards'>Boards</Link>
-          <Link to='/joinRequestManage'>Request manage</Link>
+          <Link to='/joinRequestManage'>Manage Requests</Link>
           <button className='help-btn' onClick={() => setShowModal(true)}>
             <FontAwesomeIcon icon={faQuestionCircle} />
           </button>

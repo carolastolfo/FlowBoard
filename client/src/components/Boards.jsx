@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import socket from "../socket";
 import "../styles/boards.css";
+
 
 
 const Boards = ({ state }) => {
@@ -15,8 +16,6 @@ const Boards = ({ state }) => {
   const [backgroundColor, setBackgroundColor] = useState('');
   const token = localStorage.getItem('token');
   const userId = token ? jwtDecode(token).userId : null;
-  console.log(import.meta.env.VITE_SERVER_URL);
-
 
   useEffect(() => {
     // fetch boards
@@ -174,9 +173,7 @@ const Boards = ({ state }) => {
     }, 1000);
   };
 
-  if (!token) return <h2 style={{color: '#6D72C3'}}>Please log in to see your boards.</h2>;
-  if (loading) return <h2 style={{color: '#6D72C3'}}>Loading boards...</h2>;
-
+  
   const handleJoinRequest = async (boardId) => {
     try {
       const response = await fetch(
@@ -200,7 +197,7 @@ const Boards = ({ state }) => {
       setError(err.message);
     }
   };
-
+  
   // logout function
   const handleLogout = async () => {
     try {
@@ -210,10 +207,10 @@ const Boards = ({ state }) => {
           Authorization: `Bearer ${localStorage.getItem("token")}`
         }
       });
-
+      
       // remove token from localStorage
       localStorage.removeItem("token");
-
+      
       // Redirect to login page or home page
       navigate("/");
     } catch (error) {
@@ -221,8 +218,20 @@ const Boards = ({ state }) => {
     }
   };
 
+  if (!token) return <h2>Please log in <Link to="/login" className="auth-link">here</Link> to see your boards.</h2>;
+  if (loading) return <h2 style={{color: '#6D72C3'}}>Loading boards...</h2>;
+  
   return (
     <div className='boards-container'>
+      <div className='navbar'>
+        <h3>FlowBoard</h3>
+        <div className='nav-links'>
+          <Link to='/joinRequestManage'>Manage Requests</Link>
+          <button className="logout-button" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
+      </div>
       {/* Header */}
       <div className='header'>
         <h1>Your Boards</h1>
@@ -237,17 +246,7 @@ const Boards = ({ state }) => {
             <button onClick={handleSearch} className="search-button">
               Search
             </button>
-            {/* Manage Requests button */}
-            <button
-              className="search-button"
-              onClick={() => navigate("/joinRequestManage")}
-            >
-              Manage Requests
-            </button>
           </div>
-          <button className="logout-button" onClick={handleLogout}>
-            Logout
-          </button>
         </div>
       </div>
 
